@@ -51,9 +51,9 @@ DWORD LightfallThread() {
 	}
 	baseAddress = (uintptr_t)GetModuleHandleA(NULL);
 	logger.log(std::to_string(baseAddress));
-	uintptr_t resScreenAddr = 0x051F10;
+	uintptr_t resScreenFuncCallAddr = 0x05438B;
 	
-	if (MH_CreateHook((LPVOID)(baseAddress + resScreenAddr), (LPVOID)(resScreenFuncIntercept), (void**)(&resScreenFunc)) != MH_OK) {
+	if (MH_CreateHook((LPVOID)(baseAddress + resScreenFuncCallAddr), (LPVOID)(resScreenFuncIntercept), (void**)(&resScreenFunc)) != MH_OK) {
 		logger.log("Could not create hook");
 	}
 
