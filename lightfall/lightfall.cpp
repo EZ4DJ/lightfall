@@ -8,9 +8,18 @@
 #pragma comment(lib, "MinHook.x86.lib")
 
 uintptr_t baseAddress;
+uintptr_t lightfallAddress;
 
-void(*resScreenFunc)() = NULL;
-void resScreenFuncIntercept() {
+void insertAsm(uintptr_t baseAddress, uintptr_t offset, uint8_t assembly[], size_t size) {
+	unsigned long OldProtection;
+	VirtualProtect((LPVOID)(baseAddress + offset), size, PAGE_EXECUTE_READWRITE, &OldProtection);
+	memcpy((LPVOID)(baseAddress + offset), assembly, size);
+	VirtualProtect((LPVOID)(baseAddress + offset), size, OldProtection, NULL);
+}
+
+
+
+void getResultsScreenData() {
 	uintptr_t scoreArrayOffset;
 	__asm {
 		mov scoreArrayOffset, edi;
@@ -31,7 +40,6 @@ void resScreenFuncIntercept() {
 	uintptr_t resScreenReturnAddr = 0x050690;
 	resScreenReturnAddr += baseAddress;
 	__asm popad; 
-	resScreenFunc();
 }
 
 DWORD LightfallThread() {
@@ -50,16 +58,16 @@ DWORD LightfallThread() {
 		logger.log("Could not initialize MHook");
 	}
 	baseAddress = (uintptr_t)GetModuleHandleA(NULL);
-	logger.log(std::to_string(baseAddress));
-	uintptr_t resScreenFuncCallAddr = 0x05438B;
 	
-	if (MH_CreateHook((LPVOID)(baseAddress + resScreenFuncCallAddr), (LPVOID)(resScreenFuncIntercept), (void**)(&resScreenFunc)) != MH_OK) {
-		logger.log("Could not create hook");
-	}
+	//uintptr_t resultsAddr = 0x051F10;
 
-	if (MH_EnableHook(MH_ALL_HOOKS) != MH_OK) {
-		logger.log("Could not enable hook");
-	}
+	uintptr_t callLoc = 0x05438B;
+	uint8_t test[5] = {0x39, 0x39, 0x39, 0x39, 0x39};
+	lightfallAddress = (uintptr_t)GetModuleHandleA("lightfall.dll");
+	logger.log(std::to_string(lightfallAddress));
+	uintptr_t getResultsScreenDataAddr = lightfallAddress + reinterpret_cast<uintptr_t>(getResultsScreenData);
+	uint8_t getResultsScreenData[5];
+	insertAsm(baseAddress, callLoc, getResultsScreenDataAddr, 5);
 
 	return NULL;
 }
