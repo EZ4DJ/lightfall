@@ -7,39 +7,44 @@
 
 #pragma comment(lib, "MinHook.x86.lib")
 
-uintptr_t baseAddress;
-uintptr_t lightfallAddress;
+typedef struct scoreInfo {
+	char title[128];
+	uint32_t mode;
+	char difficulty[4];
+	char course_name[128];
+	uint32_t level;
+	uint32_t score;
+	uint32_t rate;
+	char grade[5];
+	uint32_t total_notes;
+	uint32_t kool;
+	uint32_t cool;
+	uint32_t good;
+	uint32_t miss;
+	uint32_t fail;
+	uint32_t max_combo;
+};
 
-void insertAsm(uintptr_t baseAddress, uintptr_t offset, uint8_t assembly[], size_t size) {
-	unsigned long OldProtection;
-	VirtualProtect((LPVOID)(baseAddress + offset), size, PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy((LPVOID)(baseAddress + offset), assembly, size);
-	VirtualProtect((LPVOID)(baseAddress + offset), size, OldProtection, NULL);
+uint32_t* scoreArrayOffset;
+
+void __stdcall getResultsScreenData() {
+	logger.logByteArray(scoreArrayOffset, 15);
+
 }
 
-
-
-void getResultsScreenData() {
-	uintptr_t scoreArrayOffset;
+uintptr_t resScreenJumpLoc = 0x053A85;
+uintptr_t resScreenJumpBackLoc = resScreenJumpLoc + 5;
+__declspec(naked) void resScreenDetour() {
 	__asm {
-		mov scoreArrayOffset, edi;
+		mov scoreArrayOffset, edi; // edi has pointer we want
 		pushad;
+		pushfd;
+		call getResultsScreenData;
+		popfd;
+		popad;
+		mov eax, DWORD PTR [0x1B2E548]; // the instruction that was replaced
+		jmp resScreenJumpBackLoc;
 	}
-	logger.log(std::to_string(scoreArrayOffset));
-	logger.log("hooked!");
-
-	uintptr_t scoreDataOffset = baseAddress + 0x95C5C;
-	uint32_t* scorep = reinterpret_cast<uint32_t*>(baseAddress + 0x172E590);
-	
-	uint32_t score;
-	uintptr_t scoreOffset = 0x172E590;
-	readMemory(&score, baseAddress, scoreOffset, sizeof(score));
-	
-	logger.log(std::to_string(score));
-
-	uintptr_t resScreenReturnAddr = 0x050690;
-	resScreenReturnAddr += baseAddress;
-	__asm popad; 
 }
 
 DWORD LightfallThread() {
@@ -54,20 +59,16 @@ DWORD LightfallThread() {
 	//Short sleep to fix crash when using legitimate data with dongle, can be overriden in ini if causing issues.
 	Sleep(GetPrivateProfileIntA("Settings", "ShimDelay", 10, twoezconfig));
 
-	if (MH_Initialize() != MH_OK) {
-		logger.log("Could not initialize MHook");
-	}
-	baseAddress = (uintptr_t)GetModuleHandleA(NULL);
-	
-	//uintptr_t resultsAddr = 0x051F10;
+	// Parsing the results screen memory is easiest by inserting a hook in the middle of the function, where a register temporarily has an important pointer to score values
+	// Tried using MinHook but couldn't get it to do what I needed, so I overwrote 5 bytes with a jump
 
-	uintptr_t callLoc = 0x05438B;
-	uint8_t test[5] = {0x39, 0x39, 0x39, 0x39, 0x39};
-	lightfallAddress = (uintptr_t)GetModuleHandleA("lightfall.dll");
-	logger.log(std::to_string(lightfallAddress));
-	uintptr_t getResultsScreenDataAddr = lightfallAddress + reinterpret_cast<uintptr_t>(getResultsScreenData);
-	uint8_t getResultsScreenData[5];
-	insertAsm(baseAddress, callLoc, getResultsScreenDataAddr, 5);
+	uint32_t relResScreenDetourAddr = (uint32_t)((LPBYTE)resScreenDetour - (baseAddress + resScreenJumpLoc + 5));
+
+	unsigned long OldProtection;
+	VirtualProtect((LPVOID)(baseAddress + resScreenJumpLoc), 5, PAGE_EXECUTE_READWRITE, &OldProtection);
+	*(BYTE*)(baseAddress + resScreenJumpLoc) = 0xE8; // jump opcode
+	memcpy((LPVOID)(baseAddress + resScreenJumpLoc + 1), (LPVOID)&relResScreenDetourAddr, 4);
+	VirtualProtect((LPVOID)(baseAddress + resScreenJumpLoc + 1), 5, OldProtection, NULL);
 
 	return NULL;
 }
