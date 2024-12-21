@@ -26,10 +26,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\MinHook.h">
+    <ClInclude Include="lightfall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lightfall.h">
+    <ClInclude Include="lightfall_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlite3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

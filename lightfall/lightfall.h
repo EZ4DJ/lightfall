@@ -1,28 +1,29 @@
 #pragma once
 
-#include "logger.h"
+#include "lightfall_utils.h"
 
-Logger logger("lightfall.log");
+uintptr_t baseAddress = (uintptr_t)GetModuleHandleA(NULL); // should always be 0x040000 but would rather not hardcode it
+constexpr uintptr_t discNameAddr = 0x1B2EC18; // char[128]
+constexpr uintptr_t modeAddr = 0x1B2E548; // uint32
+constexpr uintptr_t courseNameAddr = 0x1B2E728; // char[128]
+constexpr uintptr_t levelAddr = 0x1B2EC0C; // uint32
+constexpr uintptr_t rateAddr = 0x1B2EBF8; // uint32
+constexpr uintptr_t stageAddr = 0x1B2E718; // uint32
+constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
+constexpr uintptr_t inCV2 = 0x1B2EB6C; // uint32
 
-uintptr_t baseAddress = (uintptr_t)GetModuleHandleA(NULL);
-constexpr uintptr_t discNameAddr = 0x1B2EC18;
-constexpr uintptr_t modeAddr = 0x1B2E548;
-constexpr uintptr_t courseNameAddr = 0x1B2E728;
-constexpr uintptr_t levelAddr = 0x1B2EC0C;
-constexpr uintptr_t inCV2 = 0x1B2EB6C;
+uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
+uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
 
-constexpr uintptr_t resScreenJumpOffset = 0x053A85;
-uintptr_t resScreenJumpBackAddr = baseAddress + resScreenJumpOffset + 5;
-
-struct scoreInfo {
+struct scoredata_t {
 	char title[128];
 	uint32_t mode;
 	char difficulty[4];
-	char course_name[128];
 	uint32_t level;
+	char course_name[128];
 	uint32_t score;
 	uint32_t rate;
-	char grade[5];
+	char grade[6];
 	uint32_t total_notes;
 	uint32_t kool;
 	uint32_t cool;
@@ -32,18 +33,32 @@ struct scoreInfo {
 	uint32_t max_combo;
 };
 
-void readString(uintptr_t offset, char buffer[], size_t size) {
+void readScoreArray(uintptr_t addr, scoredata_t scoredata) {
 	unsigned long OldProtection;
-	VirtualProtect((LPVOID)(baseAddress + offset), size, PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy(buffer, (LPVOID)(baseAddress + offset), size);
-	VirtualProtect((LPVOID)(baseAddress + offset), size, OldProtection, NULL);
+	uint32_t buffer[10];
+	VirtualProtect((LPVOID)(addr), sizeof(uint32_t), PAGE_EXECUTE_READWRITE, &OldProtection);
+	memcpy(&buffer, (LPVOID)(addr), sizeof(uint32_t) * 10);
+	VirtualProtect((LPVOID)(addr), sizeof(uint32_t), OldProtection, NULL);
+	scoredata.total_notes = buffer[0];
+	scoredata.fail = buffer[2];
+	scoredata.miss = buffer[3];
+	scoredata.good = buffer[4];
+	scoredata.cool = buffer[5];
+	scoredata.kool = buffer[6];
+	scoredata.max_combo = buffer[8];
+	scoredata.score = buffer[9];
 }
 
-uint32_t readInt(uintptr_t offset) {
-	unsigned long OldProtection;
-	uint32_t res;
-	VirtualProtect((LPVOID)(baseAddress + offset), sizeof(uint32_t), PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy(&res, (LPVOID)(baseAddress + offset), sizeof(uint32_t));
-	VirtualProtect((LPVOID)(baseAddress + offset), sizeof(uint32_t), OldProtection, NULL);
-	return res;
-}
+// modes:
+// 0: 5k only
+// 1: 5k ruby
+// 2: 5k standard
+// 3: 7k standard
+// 4: 10k maniac
+// 5: 14k maniac
+// 6: 5k course
+// 7: 7k course
+// 8: 10k course
+// 9: 14k course
+// 10: catch
+// 11: turntable
