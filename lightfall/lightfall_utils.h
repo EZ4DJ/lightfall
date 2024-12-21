@@ -3,13 +3,6 @@
 #include "logger.h"
 #include <Windows.h>
 
-void readString(char buffer[], uintptr_t addr, size_t size) {
-	unsigned long OldProtection;
-	VirtualProtect((LPVOID)(addr), size, PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy(buffer, (LPVOID)(addr), size);
-	VirtualProtect((LPVOID)(addr), size, OldProtection, NULL);
-}
-
 uint32_t readInt(uintptr_t addr) {
 	unsigned long OldProtection;
 	uint32_t res;
@@ -17,6 +10,13 @@ uint32_t readInt(uintptr_t addr) {
 	memcpy(&res, (LPVOID)(addr), sizeof(uint32_t));
 	VirtualProtect((LPVOID)(addr), sizeof(uint32_t), OldProtection, NULL);
 	return res;
+}
+
+void readString(char buffer[], uintptr_t addr, size_t size) {
+	unsigned long OldProtection;
+	VirtualProtect((LPVOID)(addr), size, PAGE_EXECUTE_READWRITE, &OldProtection);
+	memcpy(buffer, (LPVOID)(addr), size);
+	VirtualProtect((LPVOID)(addr), size, OldProtection, NULL);
 }
 
 void calcGrade(char grade[], uint32_t rate) {

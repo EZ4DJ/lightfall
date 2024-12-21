@@ -10,7 +10,6 @@ constexpr uintptr_t levelAddr = 0x1B2EC0C; // uint32
 constexpr uintptr_t rateAddr = 0x1B2EBF8; // uint32
 constexpr uintptr_t stageAddr = 0x1B2E718; // uint32
 constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
-constexpr uintptr_t inCV2 = 0x1B2EB6C; // uint32
 
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
 uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
@@ -62,3 +61,4 @@ void readScoreArray(uintptr_t addr, scoredata_t scoredata) {
 // 9: 14k course
 // 10: catch
 // 11: turntable
+// 12: CV2

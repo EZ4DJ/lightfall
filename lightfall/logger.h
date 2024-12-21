@@ -32,7 +32,6 @@ public:
 		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &newtime);
 		std::ostringstream logEntry;
 		logEntry << "[" << timestamp << "] " << message << std::endl;
-		std::cout << logEntry.str();
 		if (logFile.is_open()) {
 			logFile << logEntry.str();
 			logFile.flush(); // Ensure immediate write to file
