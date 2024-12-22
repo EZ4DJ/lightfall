@@ -32,7 +32,7 @@ struct scoredata_t {
 	uint32_t max_combo;
 };
 
-void readScoreArray(uintptr_t addr, scoredata_t scoredata) {
+void readScoreArray(uintptr_t addr, scoredata_t &scoredata) {
 	unsigned long OldProtection;
 	uint32_t buffer[10];
 	VirtualProtect((LPVOID)(addr), sizeof(uint32_t), PAGE_EXECUTE_READWRITE, &OldProtection);

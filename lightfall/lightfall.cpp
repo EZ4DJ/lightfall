@@ -51,6 +51,8 @@ void __stdcall getResultsScreenData() {
 
 	scoredata_t scoredata = {};
 	readScoreArray(scoreArrayAddr, scoredata);
+	logger.log("score");
+	logger.log(std::to_string(scoredata.score));
 	uint32_t stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
 	scoredata.rate = readInt(rateAddr + (stage * 4));
 	calcGrade(scoredata.grade, scoredata.rate);
@@ -130,8 +132,8 @@ int dbInit(char dbPath[]) {
 		sqlite3_close(db);
 		return 1;
 	}
-	// Preparing insert statement
-	sql =
+	
+	sql = // Preparing insert statement
 		"INSERT INTO score(title, mode, difficulty, level, course_name, score, rate, "
 		"grade, total_notes, kool, cool, good, miss, fail, max_combo) "
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
@@ -198,8 +200,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
 	case DLL_PROCESS_DETACH:
-		sqlite3_finalize(stmt);
-		sqlite3_close(db);
 		break;
 	}
 	return TRUE;
