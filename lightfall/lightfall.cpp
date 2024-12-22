@@ -10,7 +10,7 @@ uintptr_t scoreArrayAddr;
 sqlite3* db;
 sqlite3_stmt* stmt;
 
-void saveScore(scoredata_t scoredata) {
+void saveScore(scoredata_t &scoredata) {
 	if (sqlite3_bind_text(stmt, 1, scoredata.title, 128, 0) != SQLITE_OK) {
 		logger.log("Error binding variable to SQL statement");
 		logger.log(sqlite3_errmsg(db));
@@ -29,6 +29,8 @@ void saveScore(scoredata_t scoredata) {
 	sqlite3_bind_int(stmt, 13, scoredata.miss);
 	sqlite3_bind_int(stmt, 14, scoredata.fail);
 	sqlite3_bind_int(stmt, 15, scoredata.max_combo);
+	sqlite3_bind_text(stmt, 16, scoredata.random, 20, 0);
+	sqlite3_bind_text(stmt, 17, scoredata.auto_op, 20, 0);
 	if (sqlite3_step(stmt) != SQLITE_DONE) {
 		logger.log("Error saving score to database");
 		logger.log(sqlite3_errmsg(db));
@@ -51,8 +53,6 @@ void __stdcall getResultsScreenData() {
 
 	scoredata_t scoredata = {};
 	readScoreArray(scoreArrayAddr, scoredata);
-	logger.log("score");
-	logger.log(std::to_string(scoredata.score));
 	uint32_t stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
 	scoredata.rate = readInt(rateAddr + (stage * 4));
 	calcGrade(scoredata.grade, scoredata.rate);
@@ -62,8 +62,7 @@ void __stdcall getResultsScreenData() {
 	readString(discName, discNameAddr + (stage * 128), 128);
 	// Disc name formatted either as title or title-diff if difficulty is above NM
 	// String slicing to extract data
-	const char dash[] = "-";
-	size_t dashPos = strcspn(discName, dash);
+	size_t dashPos = strcspn(discName, "-");
 	if (dashPos != strlen(discName)) {
 		strncpy_s(scoredata.title, discName, dashPos);
 		strncpy_s(scoredata.difficulty, discName + dashPos + 1, 3);
@@ -77,6 +76,14 @@ void __stdcall getResultsScreenData() {
 		readString(scoredata.course_name, courseNameAddr, 128);
 		strcpy_s(scoredata.difficulty, "");
 	}
+	
+	uint32_t imgNamePtr = readInt(0x05C1DB10 - 4);
+	char buff[128];
+	readString(buff, imgNamePtr + 4, 128);
+	if (strcmp(buff, "effector_random_off.bmp") == 0) {
+	}
+
+
 	saveScore(scoredata);
 }
 
@@ -92,6 +99,25 @@ __declspec(naked) void resScreenDetour() {
 		mov eax, ecx; // Instructions that were replaced
 		shl eax, 4; 
 		jmp resScreenJumpBackAddr;
+	}
+}
+
+uint32_t effectorInfoPtr;
+
+uint32_t autoPtr;
+uint32_t imgNamePtr;
+
+__declspec(naked) void effectorsDetour() {
+	__asm {
+		mov effectorInfoPtr, ebx; // ebx has pointer
+		pushad;
+		pushfd;
+		call getEffectors;
+		popfd;
+		popad;
+		mov edx, dword ptr ds:[esi]; // Replaced instructions
+		add esi, 4;
+		jmp effectorsJumpBackAddr;
 	}
 }
 
@@ -122,7 +148,9 @@ int dbInit(char dbPath[]) {
 		"good INTEGER,"
 		"miss INTEGER,"
 		"fail INTEGER,"
-		"max_combo INTEGER);";
+		"max_combo INTEGER,"
+		"random TEXT,"
+		"auto TEXT);";
 	char* errormsg;
 	rc = sqlite3_exec(db, sql, NULL, NULL, &errormsg);
 	if (rc != SQLITE_OK) {
@@ -135,13 +163,12 @@ int dbInit(char dbPath[]) {
 	
 	sql = // Preparing insert statement
 		"INSERT INTO score(title, mode, difficulty, level, course_name, score, rate, "
-		"grade, total_notes, kool, cool, good, miss, fail, max_combo) "
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		"grade, total_notes, kool, cool, good, miss, fail, max_combo, random, auto) "
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 	rc = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		logger.log("Error preparing database insert statement");
 		logger.log(sqlite3_errmsg(db));
-		sqlite3_finalize(stmt);
 		sqlite3_close(db);
 		return 1;
 	}
@@ -172,6 +199,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			logger.open("lightfall.log");
 			strcpy_s(dbPath, "scores.db");
 		}
+		logger.log("Starting up...");
 
 		LPCSTR twoezconfig = ".\\2EZ.ini";
 		// Short sleep to fix crash when using legitimate data with dongle, can be overriden in 2EZ.ini if causing issues.
@@ -188,13 +216,20 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// where a register temporarily has an important pointer to score values
 		// Something like MinHook or Detours couldn't easily be used, so I manually patched in a jump instead
 		uint32_t relResScreenDetourAddr = (uint32_t)((LPBYTE)resScreenDetour - (resScreenJumpAddr + 5));
-
 		unsigned long OldProtection;
 		VirtualProtect((LPVOID)(resScreenJumpAddr), 5, PAGE_EXECUTE_READWRITE, &OldProtection);
 		*(BYTE*)(resScreenJumpAddr) = 0xE9; // jump opcode
 		memcpy((LPVOID)(resScreenJumpAddr + 1), (LPVOID)&relResScreenDetourAddr, 4);
 		VirtualProtect((LPVOID)(resScreenJumpAddr), 5, OldProtection, NULL);
+
+		/*unsigned long OldProtection2;
+		uint32_t relEffectorsDetourAddr = (uint32_t)((LPBYTE)effectorsDetour - (effectorsJumpAddr + 5));
+		VirtualProtect((LPVOID)(effectorsJumpAddr), 5, PAGE_EXECUTE_READWRITE, &OldProtection2);
+		*(BYTE*)(effectorsJumpAddr) = 0xE9; // jump opcode
+		memcpy((LPVOID)(effectorsJumpAddr + 1), (LPVOID)&relEffectorsDetourAddr, 4);
+		VirtualProtect((LPVOID)(effectorsJumpAddr), 5, OldProtection2, NULL);*/
 		
+		logger.log("Hook created, ready to save scores");
 		break;
 	}
 	case DLL_THREAD_ATTACH:

@@ -13,6 +13,8 @@ constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
 
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
 uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
+uintptr_t effectorsJumpAddr = baseAddress + 0x001C10; //05C1DB10 random, + 9E0 auto
+uintptr_t effectorsJumpBackAddr = effectorsJumpAddr + 5;
 
 struct scoredata_t {
 	char title[128];
@@ -30,14 +32,16 @@ struct scoredata_t {
 	uint32_t miss;
 	uint32_t fail;
 	uint32_t max_combo;
+	char random[20];
+	char auto_op[20];
 };
 
 void readScoreArray(uintptr_t addr, scoredata_t &scoredata) {
 	unsigned long OldProtection;
 	uint32_t buffer[10];
-	VirtualProtect((LPVOID)(addr), sizeof(uint32_t), PAGE_EXECUTE_READWRITE, &OldProtection);
+	VirtualProtect((LPVOID)(addr), sizeof(uint32_t) * 10, PAGE_EXECUTE_READWRITE, &OldProtection);
 	memcpy(&buffer, (LPVOID)(addr), sizeof(uint32_t) * 10);
-	VirtualProtect((LPVOID)(addr), sizeof(uint32_t), OldProtection, NULL);
+	VirtualProtect((LPVOID)(addr), sizeof(uint32_t) * 10, OldProtection, NULL);
 	scoredata.total_notes = buffer[0];
 	scoredata.fail = buffer[2];
 	scoredata.miss = buffer[3];

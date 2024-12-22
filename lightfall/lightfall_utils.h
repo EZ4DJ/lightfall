@@ -19,6 +19,15 @@ void readString(char buffer[], uintptr_t addr, size_t size) {
 	VirtualProtect((LPVOID)(addr), size, OldProtection, NULL);
 }
 
+void patchJump(uintptr_t targetAddr, LPBYTE detourAddr) {
+	uint32_t relDetourAddr = (uint32_t)(detourAddr - (targetAddr + 5));
+	unsigned long OldProtection;
+	VirtualProtect((LPVOID)(targetAddr), 5, PAGE_EXECUTE_READWRITE, &OldProtection);
+	*(BYTE*)(targetAddr) = 0xE9; // jump opcode
+	memcpy((LPVOID)(targetAddr + 1), (LPVOID)&relDetourAddr, 4);
+	VirtualProtect((LPVOID)(targetAddr), 5, OldProtection, NULL);
+}
+
 void calcGrade(char grade[], uint32_t rate) {
 	if (rate <= 500) {
 		strcpy_s(grade, 6, "F");
