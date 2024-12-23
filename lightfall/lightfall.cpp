@@ -7,8 +7,10 @@
 
 Logger logger;
 uintptr_t scoreArrayAddr;
+uintptr_t effectorInfoAddr;
 sqlite3* db;
 sqlite3_stmt* stmt;
+int inEffectorAnim = 0;
 
 void saveScore(scoredata_t &scoredata) {
 	if (sqlite3_bind_text(stmt, 1, scoredata.title, 128, 0) != SQLITE_OK) {
@@ -76,13 +78,17 @@ void __stdcall getResultsScreenData() {
 		readString(scoredata.course_name, courseNameAddr, 128);
 		strcpy_s(scoredata.difficulty, "");
 	}
-	
-	uint32_t imgNamePtr = readInt(0x05C1DB10 - 4);
+	effectorInfoAddr += 0x4F0;
+	uint32_t imgNamePtr = readInt(effectorInfoAddr - 4);
 	char buff[128];
 	readString(buff, imgNamePtr + 4, 128);
 	if (strcmp(buff, "effector_random_off.bmp") == 0) {
+		logger.log("Effectors found");
+		uint32_t randomPtr = readInt(effectorInfoAddr + 8);
+		char random[30];
+		readString(random, randomPtr - 31, 30);
+		logger.log(random);
 	}
-
 
 	saveScore(scoredata);
 }
@@ -102,22 +108,27 @@ __declspec(naked) void resScreenDetour() {
 	}
 }
 
-uint32_t effectorInfoPtr;
-
-uint32_t autoPtr;
-uint32_t imgNamePtr;
-
-__declspec(naked) void effectorsDetour() {
+__declspec(naked) void animDetour() {
 	__asm {
-		mov effectorInfoPtr, ebx; // ebx has pointer
-		pushad;
 		pushfd;
-		call getEffectors;
+		cmp inEffectorAnim, 1;
+		jne skip;
+		mov effectorInfoAddr, ebx; // ebx has pointer
+		mov inEffectorAnim, 0;
+
+	skip:
 		popfd;
-		popad;
 		mov edx, dword ptr ds:[esi]; // Replaced instructions
 		add esi, 4;
-		jmp effectorsJumpBackAddr;
+		jmp animJumpBackAddr;
+	}
+}
+
+__declspec(naked) void preEffectorsDetour() {
+	__asm {
+		mov inEffectorAnim, 1; // Next call of animDetour will have correct address
+		push 0x495F74; // Replaced instruction
+		jmp preEffectorsJumpBackAddr;
 	}
 }
 
@@ -212,22 +223,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			break;
 		}
 
-		// Parsing the results screen is easiest by inserting a hook in the middle of the function,
-		// where a register temporarily has an important pointer to score values
-		// Something like MinHook or Detours couldn't easily be used, so I manually patched in a jump instead
-		uint32_t relResScreenDetourAddr = (uint32_t)((LPBYTE)resScreenDetour - (resScreenJumpAddr + 5));
-		unsigned long OldProtection;
-		VirtualProtect((LPVOID)(resScreenJumpAddr), 5, PAGE_EXECUTE_READWRITE, &OldProtection);
-		*(BYTE*)(resScreenJumpAddr) = 0xE9; // jump opcode
-		memcpy((LPVOID)(resScreenJumpAddr + 1), (LPVOID)&relResScreenDetourAddr, 4);
-		VirtualProtect((LPVOID)(resScreenJumpAddr), 5, OldProtection, NULL);
-
-		/*unsigned long OldProtection2;
-		uint32_t relEffectorsDetourAddr = (uint32_t)((LPBYTE)effectorsDetour - (effectorsJumpAddr + 5));
-		VirtualProtect((LPVOID)(effectorsJumpAddr), 5, PAGE_EXECUTE_READWRITE, &OldProtection2);
-		*(BYTE*)(effectorsJumpAddr) = 0xE9; // jump opcode
-		memcpy((LPVOID)(effectorsJumpAddr + 1), (LPVOID)&relEffectorsDetourAddr, 4);
-		VirtualProtect((LPVOID)(effectorsJumpAddr), 5, OldProtection2, NULL);*/
+		// Parsing the results screen is easiest by inserting hooks in the middle of the function,
+		// where registers temporarily have pointers to score values
+		// Something like MinHook or Detours couldn't easily be used, so I manually patched in jumps instead
+		patchJump(resScreenJumpAddr, (LPBYTE)resScreenDetour);
+		patchJump(animJumpAddr, (LPBYTE)animDetour);
+		patchJump(preEffectorsJumpAddr, (LPBYTE)preEffectorsDetour);
 		
 		logger.log("Hook created, ready to save scores");
 		break;

@@ -13,8 +13,10 @@ constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
 
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
 uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
-uintptr_t effectorsJumpAddr = baseAddress + 0x001C10; //05C1DB10 random, + 9E0 auto
-uintptr_t effectorsJumpBackAddr = effectorsJumpAddr + 5;
+uintptr_t preEffectorsJumpAddr = baseAddress + 0x05303C;
+uintptr_t preEffectorsJumpBackAddr = preEffectorsJumpAddr + 5;
+uintptr_t animJumpAddr = baseAddress + 0x001C10; // + 9E0 auto
+uintptr_t animJumpBackAddr = animJumpAddr + 5;
 
 struct scoredata_t {
 	char title[128];
