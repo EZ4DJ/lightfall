@@ -8,6 +8,9 @@
 Logger logger;
 uintptr_t scoreArrayAddr;
 uintptr_t effectorInfoAddr;
+uintptr_t randomAddr;
+uintptr_t autoAddr;
+scoredata_t scoredata;
 sqlite3* db;
 sqlite3_stmt* stmt;
 int inEffectorAnim = 0;
@@ -53,7 +56,7 @@ void __stdcall getResultsScreenData() {
 		return;
 	}
 
-	scoredata_t scoredata = {};
+	scoredata = {};
 	readScoreArray(scoreArrayAddr, scoredata);
 	uint32_t stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
 	scoredata.rate = readInt(rateAddr + (stage * 4));
@@ -78,17 +81,9 @@ void __stdcall getResultsScreenData() {
 		readString(scoredata.course_name, courseNameAddr, 128);
 		strcpy_s(scoredata.difficulty, "");
 	}
-	effectorInfoAddr += 0x4F0;
-	uint32_t imgNamePtr = readInt(effectorInfoAddr - 4);
-	char buff[128];
-	readString(buff, imgNamePtr + 4, 128);
-	if (strcmp(buff, "effector_random_off.bmp") == 0) {
-		logger.log("Effectors found");
-		uint32_t randomPtr = readInt(effectorInfoAddr + 8);
-		char random[30];
-		readString(random, randomPtr - 31, 30);
-		logger.log(random);
-	}
+
+	strcpy_s(scoredata.random, "off");
+	strcpy_s(scoredata.auto_op, "off");
 
 	saveScore(scoredata);
 }
@@ -129,6 +124,30 @@ __declspec(naked) void preEffectorsDetour() {
 		mov inEffectorAnim, 1; // Next call of animDetour will have correct address
 		push 0x495F74; // Replaced instruction
 		jmp preEffectorsJumpBackAddr;
+	}
+}
+
+void __stdcall getEffectors() {
+	effectorInfoAddr += 0x4F0;
+	uint32_t imgNamePtr = readInt(effectorInfoAddr - 4);
+	char buff[128];
+	readString(buff, imgNamePtr + 4, 128);
+	if (strcmp(buff, "effector_random_off.bmp") == 0) {
+		logger.log("Effectors found");
+		uint32_t randomPtr = readInt(effectorInfoAddr + 8);
+		logger.log(std::to_string(randomPtr));
+		char random[30];
+		readString(random, randomPtr - 31, 30);
+		logger.log(random);
+	}
+	
+}
+
+__declspec(naked) void getEffectorsDetour() {
+	__asm {
+		call getEffectors;
+		mov edi, 1;
+		jmp getEffectorsJumpBackAddr;
 	}
 }
 

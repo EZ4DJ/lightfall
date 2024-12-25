@@ -10,13 +10,17 @@ constexpr uintptr_t levelAddr = 0x1B2EC0C; // uint32
 constexpr uintptr_t rateAddr = 0x1B2EBF8; // uint32
 constexpr uintptr_t stageAddr = 0x1B2E718; // uint32
 constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
+constexpr uintptr_t autoAddr = 0x1B5F178; // uint32
+
+// Each random option stored in separate address for some reason, this was a nightmare to find
+constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 
+									 0x1B2E998, 0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
+constexpr char randomNames[][3] = { "on", "s", "ps", "m", "h", "h", "f", "f", "n", "k", "sp" };
+
+
 
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
 uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
-uintptr_t preEffectorsJumpAddr = baseAddress + 0x05303C;
-uintptr_t preEffectorsJumpBackAddr = preEffectorsJumpAddr + 5;
-uintptr_t animJumpAddr = baseAddress + 0x001C10; // + 9E0 auto
-uintptr_t animJumpBackAddr = animJumpAddr + 5;
 
 struct scoredata_t {
 	char title[128];
@@ -34,8 +38,8 @@ struct scoredata_t {
 	uint32_t miss;
 	uint32_t fail;
 	uint32_t max_combo;
-	char random[20];
-	char auto_op[20];
+	char random[3];
+	char auto_op[4];
 };
 
 void readScoreArray(uintptr_t addr, scoredata_t &scoredata) {
