@@ -2,7 +2,7 @@
 
 #include "lightfall_utils.h"
 
-uintptr_t baseAddress = (uintptr_t)GetModuleHandleA(NULL); // should always be 0x040000 but would rather not hardcode it
+uintptr_t baseAddress = (uintptr_t)GetModuleHandleA(NULL); // should always be 0x40000 but would rather not hardcode it
 constexpr uintptr_t discNameAddr = 0x1B2EC18; // char[128]
 constexpr uintptr_t modeAddr = 0x1B2E548; // uint32
 constexpr uintptr_t courseNameAddr = 0x1B2E728; // char[128]
@@ -13,11 +13,9 @@ constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
 constexpr uintptr_t autoAddr = 0x1B5F178; // uint32
 
 // Each random option stored in separate address for some reason, this was a nightmare to find
-constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 
-									 0x1B2E998, 0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
+constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 0x1B2E998,
+									 0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
 constexpr char randomNames[][3] = { "on", "s", "ps", "m", "h", "h", "f", "f", "n", "k", "sp" };
-
-
 
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
 uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
@@ -38,7 +36,7 @@ struct scoredata_t {
 	uint32_t miss;
 	uint32_t fail;
 	uint32_t max_combo;
-	char random[3];
+	char random_op[4];
 	char auto_op[4];
 };
 

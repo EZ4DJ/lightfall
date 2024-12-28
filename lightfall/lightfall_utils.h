@@ -29,31 +29,34 @@ void patchJump(uintptr_t targetAddr, LPBYTE detourAddr) {
 }
 
 void calcGrade(char grade[], uint32_t rate) {
-	if (rate <= 500) {
+	if (rate < 500) {
 		strcpy_s(grade, 6, "F");
 	}
-	else if (rate <= 600) {
+	else if (rate < 600) {
 		strcpy_s(grade, 6, "D");
 	}
-	else if (rate <= 700) {
+	else if (rate < 700) {
 		strcpy_s(grade, 6, "C");
 	}
-	else if (rate <= 800) {
+	else if (rate < 800) {
 		strcpy_s(grade, 6, "B");
 	}
-	else if (rate <= 900) {
+	else if (rate < 850) {
 		strcpy_s(grade, 6, "A");
 	}
-	else if (rate <= 930) {
+	else if (rate < 900) {
+		strcpy_s(grade, 6, "A+");
+	}
+	else if (rate < 930) {
 		strcpy_s(grade, 6, "S");
 	}
-	else if (rate <= 950) {
+	else if (rate < 950) {
 		strcpy_s(grade, 6, "S+");
 	}
-	else if (rate <= 980) {
+	else if (rate < 980) {
 		strcpy_s(grade, 6, "S++");
 	}
-	else if (rate <= 1000) {
+	else if (rate < 1000) {
 		strcpy_s(grade, 6, "S+++");
 	}
 	else if (rate == 1000) {

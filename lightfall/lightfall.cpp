@@ -7,26 +7,21 @@
 
 Logger logger;
 uintptr_t scoreArrayAddr;
-uintptr_t effectorInfoAddr;
-uintptr_t randomAddr;
-uintptr_t autoAddr;
-scoredata_t scoredata;
 sqlite3* db;
 sqlite3_stmt* stmt;
-int inEffectorAnim = 0;
 
 void saveScore(scoredata_t &scoredata) {
-	if (sqlite3_bind_text(stmt, 1, scoredata.title, 128, 0) != SQLITE_OK) {
+	if (sqlite3_bind_text(stmt, 1, scoredata.title, strlen(scoredata.title), 0) != SQLITE_OK) {
 		logger.log("Error binding variable to SQL statement");
 		logger.log(sqlite3_errmsg(db));
 	}
 	sqlite3_bind_int(stmt, 2, scoredata.mode);
-	sqlite3_bind_text(stmt, 3, scoredata.difficulty, 4, 0);
+	sqlite3_bind_text(stmt, 3, scoredata.difficulty, -1, SQLITE_STATIC);
 	sqlite3_bind_int(stmt, 4, scoredata.level);
-	sqlite3_bind_text(stmt, 5, scoredata.course_name, 128, 0);
+	sqlite3_bind_text(stmt, 5, scoredata.course_name, -1, SQLITE_STATIC);
 	sqlite3_bind_int(stmt, 6, scoredata.score);
 	sqlite3_bind_int(stmt, 7, scoredata.rate);
-	sqlite3_bind_text(stmt, 8, scoredata.grade, 6, 0);
+	sqlite3_bind_text(stmt, 8, scoredata.grade, -1, SQLITE_STATIC);
 	sqlite3_bind_int(stmt, 9, scoredata.total_notes);
 	sqlite3_bind_int(stmt, 10, scoredata.kool);
 	sqlite3_bind_int(stmt, 11, scoredata.cool);
@@ -34,8 +29,8 @@ void saveScore(scoredata_t &scoredata) {
 	sqlite3_bind_int(stmt, 13, scoredata.miss);
 	sqlite3_bind_int(stmt, 14, scoredata.fail);
 	sqlite3_bind_int(stmt, 15, scoredata.max_combo);
-	sqlite3_bind_text(stmt, 16, scoredata.random, 20, 0);
-	sqlite3_bind_text(stmt, 17, scoredata.auto_op, 20, 0);
+	sqlite3_bind_text(stmt, 16, scoredata.random_op, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 17, scoredata.auto_op, -1, SQLITE_STATIC);
 	if (sqlite3_step(stmt) != SQLITE_DONE) {
 		logger.log("Error saving score to database");
 		logger.log(sqlite3_errmsg(db));
@@ -56,8 +51,9 @@ void __stdcall getResultsScreenData() {
 		return;
 	}
 
-	scoredata = {};
+	scoredata_t scoredata = {};
 	readScoreArray(scoreArrayAddr, scoredata);
+	scoredata.mode = readInt(modeAddr);
 	uint32_t stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
 	scoredata.rate = readInt(rateAddr + (stage * 4));
 	calcGrade(scoredata.grade, scoredata.rate);
@@ -77,13 +73,59 @@ void __stdcall getResultsScreenData() {
 		strcpy_s(scoredata.difficulty, "nm");
 	}
 
-	if ((6 <= scoredata.mode && scoredata.mode <= 9)) { // Checking if in course mode
+	if (6 <= scoredata.mode && scoredata.mode <= 9) { // Checking if in course mode
 		readString(scoredata.course_name, courseNameAddr, 128);
 		strcpy_s(scoredata.difficulty, "");
 	}
 
-	strcpy_s(scoredata.random, "off");
-	strcpy_s(scoredata.auto_op, "off");
+	// Getting random + auto settings
+	for (int i = 0; i < 11; i++) {
+		if (readInt(randomAddrs[i])) {
+			strcpy_s(scoredata.random_op, randomNames[i]);
+			break;
+		}
+	}
+	if (scoredata.random_op == NULL) {
+		strcpy_s(scoredata.random_op, "off");
+	}
+	// 5K Only, Catch, Turntable and CV2 don't have auto options
+	if (scoredata.mode == 0 || scoredata.mode == 10 || 
+		scoredata.mode == 11 || scoredata.mode == 12) {
+		strcpy_s(scoredata.auto_op, "off");
+	}
+	// 14K has different auto options
+	else if (scoredata.mode == 5 || scoredata.mode == 9) {
+		switch (readInt(autoAddr)) {
+		case 1:
+			strcpy_s(scoredata.auto_op, "ls");
+			break;
+		case 2:
+			strcpy_s(scoredata.auto_op, "rs");
+			break;
+		case 3:
+			strcpy_s(scoredata.auto_op, "s");
+			break;
+		default:
+			strcpy_s(scoredata.auto_op, "off");
+			break;
+		}
+	}
+	else {
+		switch (readInt(autoAddr)) {
+		case 1:
+			strcpy_s(scoredata.auto_op, "s");
+			break;
+		case 2:
+			strcpy_s(scoredata.auto_op, "p");
+			break;
+		case 3:
+			strcpy_s(scoredata.auto_op, "sp");
+			break;
+		default:
+			strcpy_s(scoredata.auto_op, "off");
+			break;
+		}
+	}
 
 	saveScore(scoredata);
 }
@@ -100,54 +142,6 @@ __declspec(naked) void resScreenDetour() {
 		mov eax, ecx; // Instructions that were replaced
 		shl eax, 4; 
 		jmp resScreenJumpBackAddr;
-	}
-}
-
-__declspec(naked) void animDetour() {
-	__asm {
-		pushfd;
-		cmp inEffectorAnim, 1;
-		jne skip;
-		mov effectorInfoAddr, ebx; // ebx has pointer
-		mov inEffectorAnim, 0;
-
-	skip:
-		popfd;
-		mov edx, dword ptr ds:[esi]; // Replaced instructions
-		add esi, 4;
-		jmp animJumpBackAddr;
-	}
-}
-
-__declspec(naked) void preEffectorsDetour() {
-	__asm {
-		mov inEffectorAnim, 1; // Next call of animDetour will have correct address
-		push 0x495F74; // Replaced instruction
-		jmp preEffectorsJumpBackAddr;
-	}
-}
-
-void __stdcall getEffectors() {
-	effectorInfoAddr += 0x4F0;
-	uint32_t imgNamePtr = readInt(effectorInfoAddr - 4);
-	char buff[128];
-	readString(buff, imgNamePtr + 4, 128);
-	if (strcmp(buff, "effector_random_off.bmp") == 0) {
-		logger.log("Effectors found");
-		uint32_t randomPtr = readInt(effectorInfoAddr + 8);
-		logger.log(std::to_string(randomPtr));
-		char random[30];
-		readString(random, randomPtr - 31, 30);
-		logger.log(random);
-	}
-	
-}
-
-__declspec(naked) void getEffectorsDetour() {
-	__asm {
-		call getEffectors;
-		mov edi, 1;
-		jmp getEffectorsJumpBackAddr;
 	}
 }
 
@@ -234,7 +228,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		LPCSTR twoezconfig = ".\\2EZ.ini";
 		// Short sleep to fix crash when using legitimate data with dongle, can be overriden in 2EZ.ini if causing issues.
 		Sleep(GetPrivateProfileIntA("Settings", "ShimDelay", 10, twoezconfig));
-		if (GetPrivateProfileIntA("Settings", "GameVer", 0, twoezconfig) != 21) {
+		if (GetPrivateProfileIntA("Settings", "GameVer", 21, twoezconfig) != 21) {
 			logger.log("Game version not Final: EX, stopping");
 			break;
 		}
@@ -242,12 +236,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			break;
 		}
 
-		// Parsing the results screen is easiest by inserting hooks in the middle of the function,
-		// where registers temporarily have pointers to score values
-		// Something like MinHook or Detours couldn't easily be used, so I manually patched in jumps instead
+		// Parsing the results screen is easiest by inserting hook in the middle of the function,
+		// where a register temporarily has pointer to important score values
+		// Something like MinHook or Detours couldn't easily be used, so I manually patched in a jump instead
 		patchJump(resScreenJumpAddr, (LPBYTE)resScreenDetour);
-		patchJump(animJumpAddr, (LPBYTE)animDetour);
-		patchJump(preEffectorsJumpAddr, (LPBYTE)preEffectorsDetour);
 		
 		logger.log("Hook created, ready to save scores");
 		break;
