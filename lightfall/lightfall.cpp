@@ -60,6 +60,7 @@ void __stdcall getResultsScreenData() {
 
 	if (scoredata.mode == 12) { // Separate title logic for CV2
 		readString(scoredata.title, cv2SongNameAddr, 32);
+		strcpy_s(scoredata.difficulty, "");
 	}
 	else {
 		char discName[128];
