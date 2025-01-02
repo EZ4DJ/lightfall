@@ -60,7 +60,6 @@ void __stdcall getResultsScreenData() {
 
 	if (scoredata.mode == 12) { // Separate title logic for CV2
 		readString(scoredata.title, cv2SongNameAddr, 32);
-		strcpy_s(scoredata.difficulty, "");
 	}
 	else {
 		char discName[128];
@@ -77,7 +76,6 @@ void __stdcall getResultsScreenData() {
 			strcpy_s(scoredata.difficulty, "nm");
 		}
 	}
-
 	if (6 <= scoredata.mode && scoredata.mode <= 9) { // Checking if in course mode
 		readString(scoredata.course_name, courseNameAddr, 128);
 		strcpy_s(scoredata.difficulty, "");
