@@ -52,25 +52,29 @@ void __stdcall getResultsScreenData() {
 	}
 
 	scoredata_t scoredata = {};
-	readScoreArray(scoreArrayAddr, scoredata);
 	scoredata.mode = readInt(modeAddr);
+	readScoreArray(scoreArrayAddr, scoredata);
 	uint32_t stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
 	scoredata.rate = readInt(rateAddr + (stage * 4));
-	calcGrade(scoredata.grade, scoredata.rate);
 	scoredata.level = readInt(levelAddr);
 
-	char discName[128];
-	readString(discName, discNameAddr + (stage * 128), 128);
-	// Disc name formatted either as title or title-diff if difficulty is above NM
-	// String slicing to extract data
-	size_t dashPos = strcspn(discName, "-");
-	if (dashPos != strlen(discName)) {
-		strncpy_s(scoredata.title, discName, dashPos);
-		strncpy_s(scoredata.difficulty, discName + dashPos + 1, 3);
+	if (scoredata.mode == 12) { // Separate title logic for CV2
+		readString(scoredata.title, cv2SongNameAddr, 32);
 	}
 	else {
-		strcpy_s(scoredata.title, discName);
-		strcpy_s(scoredata.difficulty, "nm");
+		char discName[128];
+		readString(discName, discNameAddr + (stage * 128), 128);
+		// Disc name formatted either as title or title-diff if difficulty is above NM
+		// String slicing to extract data
+		size_t dashPos = strcspn(discName, "-");
+		if (dashPos != strlen(discName)) {
+			strncpy_s(scoredata.title, discName, dashPos);
+			strncpy_s(scoredata.difficulty, discName + dashPos + 1, 3);
+		}
+		else {
+			strcpy_s(scoredata.title, discName);
+			strcpy_s(scoredata.difficulty, "nm");
+		}
 	}
 
 	if (6 <= scoredata.mode && scoredata.mode <= 9) { // Checking if in course mode
@@ -86,44 +90,42 @@ void __stdcall getResultsScreenData() {
 		}
 	}
 	if (scoredata.random_op == NULL) {
-		strcpy_s(scoredata.random_op, "off");
+		strcpy_s(scoredata.random_op, "OFF");
 	}
 	// 5K Only, Catch, Turntable and CV2 don't have auto options
 	if (scoredata.mode == 0 || scoredata.mode == 10 || 
 		scoredata.mode == 11 || scoredata.mode == 12) {
-		strcpy_s(scoredata.auto_op, "off");
+		strcpy_s(scoredata.auto_op, "OFF");
 	}
 	// 14K has different auto options
 	else if (scoredata.mode == 5 || scoredata.mode == 9) {
 		switch (readInt(autoAddr)) {
 		case 1:
-			strcpy_s(scoredata.auto_op, "ls");
+			strcpy_s(scoredata.auto_op, "LS");
 			break;
 		case 2:
-			strcpy_s(scoredata.auto_op, "rs");
+			strcpy_s(scoredata.auto_op, "RS");
 			break;
 		case 3:
-			strcpy_s(scoredata.auto_op, "s");
+			strcpy_s(scoredata.auto_op, "S");
 			break;
 		default:
-			strcpy_s(scoredata.auto_op, "off");
-			break;
+			strcpy_s(scoredata.auto_op, "OFF");
 		}
 	}
 	else {
 		switch (readInt(autoAddr)) {
 		case 1:
-			strcpy_s(scoredata.auto_op, "s");
+			strcpy_s(scoredata.auto_op, "S");
 			break;
 		case 2:
-			strcpy_s(scoredata.auto_op, "p");
+			strcpy_s(scoredata.auto_op, "P");
 			break;
 		case 3:
-			strcpy_s(scoredata.auto_op, "sp");
+			strcpy_s(scoredata.auto_op, "SP");
 			break;
 		default:
-			strcpy_s(scoredata.auto_op, "off");
-			break;
+			strcpy_s(scoredata.auto_op, "OFF");
 		}
 	}
 
