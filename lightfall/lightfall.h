@@ -27,9 +27,8 @@ uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
 struct scoredata_t {
 	char title[128];
 	uint32_t mode;
-	char difficulty[4];
+	char difficulty[128];
 	uint32_t level;
-	char course_name[128];
 	uint32_t score;
 	uint32_t rate;
 	char grade[6];

@@ -11,26 +11,25 @@ sqlite3* db;
 sqlite3_stmt* stmt;
 
 void saveScore(scoredata_t &scoredata) {
-	if (sqlite3_bind_text(stmt, 1, scoredata.title, strlen(scoredata.title), 0) != SQLITE_OK) {
-		logger.log("Error binding variable to SQL statement");
+	if (sqlite3_bind_text(stmt, 1, scoredata.title, -1, 0) != SQLITE_OK) {
+		logger.log("Error binding variable to insert statement");
 		logger.log(sqlite3_errmsg(db));
 	}
 	sqlite3_bind_int(stmt, 2, scoredata.mode);
 	sqlite3_bind_text(stmt, 3, scoredata.difficulty, -1, SQLITE_STATIC);
 	sqlite3_bind_int(stmt, 4, scoredata.level);
-	sqlite3_bind_text(stmt, 5, scoredata.course_name, -1, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 6, scoredata.score);
-	sqlite3_bind_int(stmt, 7, scoredata.rate);
-	sqlite3_bind_text(stmt, 8, scoredata.grade, -1, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 9, scoredata.total_notes);
-	sqlite3_bind_int(stmt, 10, scoredata.kool);
-	sqlite3_bind_int(stmt, 11, scoredata.cool);
-	sqlite3_bind_int(stmt, 12, scoredata.good);
-	sqlite3_bind_int(stmt, 13, scoredata.miss);
-	sqlite3_bind_int(stmt, 14, scoredata.fail);
-	sqlite3_bind_int(stmt, 15, scoredata.max_combo);
-	sqlite3_bind_text(stmt, 16, scoredata.random_op, -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 17, scoredata.auto_op, -1, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 5, scoredata.score);
+	sqlite3_bind_int(stmt, 6, scoredata.rate);
+	sqlite3_bind_text(stmt, 7, scoredata.grade, -1, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 8, scoredata.total_notes);
+	sqlite3_bind_int(stmt, 9, scoredata.kool);
+	sqlite3_bind_int(stmt, 10, scoredata.cool);
+	sqlite3_bind_int(stmt, 11, scoredata.good);
+	sqlite3_bind_int(stmt, 12, scoredata.miss);
+	sqlite3_bind_int(stmt, 13, scoredata.fail);
+	sqlite3_bind_int(stmt, 14, scoredata.max_combo);
+	sqlite3_bind_text(stmt, 15, scoredata.random_op, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 16, scoredata.auto_op, -1, SQLITE_STATIC);
 	if (sqlite3_step(stmt) != SQLITE_DONE) {
 		logger.log("Error saving score to database");
 		logger.log(sqlite3_errmsg(db));
@@ -77,8 +76,7 @@ void __stdcall getResultsScreenData() {
 		}
 	}
 	if (6 <= scoredata.mode && scoredata.mode <= 9) { // Checking if in course mode
-		readString(scoredata.course_name, courseNameAddr, 128);
-		strcpy_s(scoredata.difficulty, "");
+		readString(scoredata.difficulty, courseNameAddr, 128);
 	}
 
 	// Getting random + auto settings
@@ -88,7 +86,7 @@ void __stdcall getResultsScreenData() {
 			break;
 		}
 	}
-	if (scoredata.random_op == NULL) {
+	if (scoredata.random_op == "") {
 		strcpy_s(scoredata.random_op, "OFF");
 	}
 	// 5K Only, Catch, Turntable and CV2 don't have auto options
@@ -163,7 +161,6 @@ int dbInit(char dbPath[]) {
 		"mode INTEGER NOT NULL,"
 		"difficulty TEXT,"
 		"level INTEGER,"
-		"course_name TEXT,"
 		"score INTEGER NOT NULL,"
 		"rate INTEGER,"
 		"grade TEXT,"
@@ -187,9 +184,9 @@ int dbInit(char dbPath[]) {
 	}
 	
 	sql = // Preparing insert statement
-		"INSERT INTO score(title, mode, difficulty, level, course_name, score, rate, "
+		"INSERT INTO score(title, mode, difficulty, level, score, rate, "
 		"grade, total_notes, kool, cool, good, miss, fail, max_combo, random, auto) "
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 	rc = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		logger.log("Error preparing database insert statement");
