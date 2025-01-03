@@ -7,11 +7,11 @@ constexpr uintptr_t discNameAddr = 0x1B2EC18; // char[128]
 constexpr uintptr_t modeAddr = 0x1B2E548; // uint32
 constexpr uintptr_t cv2SongNameAddr = 0x1B2EB80; // char[32]
 constexpr uintptr_t courseNameAddr = 0x1B2E728; // char[128]
-constexpr uintptr_t levelAddr = 0x1B2EC0C; // uint32
+constexpr uintptr_t levelAddr = 0x1B2EC0C; // uint32, chart number in CV2
 constexpr uintptr_t rateAddr = 0x1B2EBF8; // uint32
-constexpr uintptr_t stageAddr = 0x1B2E718; // uint32
+constexpr uintptr_t stageAddr = 0x1B2E718; // uint32 0-3
 constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
-constexpr uintptr_t autoAddr = 0x1B5F178; // uint32
+constexpr uintptr_t autoAddr = 0x1B5F178; // uint32 0-3
 
 constexpr char* grades[] = { "F", "D", "C", "B", "A", "A+", "S", "S+", "S++", "S+++", "S++++" };
 constexpr char* cv2Grades[] = { "F", "F", "D", "C", "B", "A", "A+" };
@@ -20,6 +20,8 @@ constexpr char* cv2Grades[] = { "F", "F", "D", "C", "B", "A", "A+" };
 constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 0x1B2E998,
 									  0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
 constexpr char* randomNames[] = { "ON", "S", "PS", "M", "H", "H", "F", "F", "N", "K", "SP" };
+constexpr char* autoOps[] = { "OFF", "S", "P", "SP" };
+constexpr char* autoOps14K[] = { "OFF", "LS", "RS", "S" };
 
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
 uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;

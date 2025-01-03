@@ -98,34 +98,10 @@ void __stdcall getResultsScreenData() {
 	}
 	// 14K has different auto options
 	else if (scoredata.mode == 5 || scoredata.mode == 9) {
-		switch (readInt(autoAddr)) {
-		case 1:
-			strcpy_s(scoredata.auto_op, "LS");
-			break;
-		case 2:
-			strcpy_s(scoredata.auto_op, "RS");
-			break;
-		case 3:
-			strcpy_s(scoredata.auto_op, "S");
-			break;
-		default:
-			strcpy_s(scoredata.auto_op, "OFF");
-		}
+		strcpy_s(scoredata.auto_op, autoOps14K[readInt(autoAddr)]);
 	}
 	else {
-		switch (readInt(autoAddr)) {
-		case 1:
-			strcpy_s(scoredata.auto_op, "S");
-			break;
-		case 2:
-			strcpy_s(scoredata.auto_op, "P");
-			break;
-		case 3:
-			strcpy_s(scoredata.auto_op, "SP");
-			break;
-		default:
-			strcpy_s(scoredata.auto_op, "OFF");
-		}
+		strcpy_s(scoredata.auto_op, autoOps[readInt(autoAddr)]);
 	}
 
 	saveScore(scoredata);
