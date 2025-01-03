@@ -80,13 +80,15 @@ void __stdcall getResultsScreenData() {
 	}
 
 	// Getting random + auto settings
+	bool randomFound = false;
 	for (int i = 0; i < 11; i++) {
 		if (readInt(randomAddrs[i])) {
+			randomFound = true;
 			strcpy_s(scoredata.random_op, randomNames[i]);
 			break;
 		}
 	}
-	if (scoredata.random_op == "") {
+	if (randomFound == false) {
 		strcpy_s(scoredata.random_op, "OFF");
 	}
 	// 5K Only, Catch, Turntable and CV2 don't have auto options

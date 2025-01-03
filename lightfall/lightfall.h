@@ -18,7 +18,7 @@ constexpr char* cv2Grades[] = { "F", "F", "D", "C", "B", "A", "A+" };
 
 // Each random option stored in separate address for some reason, this was a nightmare to find
 constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 0x1B2E998,
-									 0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
+									  0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
 constexpr char* randomNames[] = { "ON", "S", "PS", "M", "H", "H", "F", "F", "N", "K", "SP" };
 
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
