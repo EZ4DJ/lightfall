@@ -21,7 +21,7 @@ public:
 		}
 		logFile.close();
 	}
-	void log(const std::string& message) {
+	void logTimestamp(const std::string& message) {
 		if (disabled) {
 			return;
 		}
@@ -31,10 +31,19 @@ public:
 		char timestamp[20];
 		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &newtime);
 		std::ostringstream logEntry;
-		logEntry << "[" << timestamp << "] " << message << std::endl;
+		logEntry << "[" << timestamp << "] " << message;
 		if (logFile.is_open()) {
 			logFile << logEntry.str();
 			logFile.flush(); // Ensure immediate write to file
+		}
+	}
+	void log(const std::string& message) {
+		if (disabled) {
+			return;
+		}
+		if (logFile.is_open()) {
+			logFile << message;
+			logFile.flush();
 		}
 	}
 private:

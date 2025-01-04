@@ -47,23 +47,23 @@ struct scoredata_t {
 
 void readScoreArray(uintptr_t addr, scoredata_t &scoredata) {
 	unsigned long OldProtection;
-	uint32_t buffer[13];
+	uint32_t buff[13];
 	VirtualProtect((LPVOID)(addr), sizeof(uint32_t) * 13, PAGE_EXECUTE_READWRITE, &OldProtection);
-	memcpy(&buffer, (LPVOID)(addr), sizeof(uint32_t) * 13);
+	memcpy(&buff, (LPVOID)(addr), sizeof(uint32_t) * 13);
 	VirtualProtect((LPVOID)(addr), sizeof(uint32_t) * 13, OldProtection, NULL);
-	scoredata.total_notes = buffer[0];
-	scoredata.fail = buffer[2];
-	scoredata.miss = buffer[3];
-	scoredata.good = buffer[4];
-	scoredata.cool = buffer[5];
-	scoredata.kool = buffer[6];
-	scoredata.max_combo = buffer[8];
-	scoredata.score = buffer[9];
+	scoredata.total_notes = buff[0];
+	scoredata.fail = buff[2];
+	scoredata.miss = buff[3];
+	scoredata.good = buff[4];
+	scoredata.cool = buff[5];
+	scoredata.kool = buff[6];
+	scoredata.max_combo = buff[8];
+	scoredata.score = buff[9];
 	if (scoredata.mode == 12) { // CV2 uses different grades
-		strcpy_s(scoredata.grade, cv2Grades[buffer[12]]);
+		strcpy_s(scoredata.grade, cv2Grades[buff[12]]);
 	}
 	else {
-		strcpy_s(scoredata.grade, grades[buffer[12]]);
+		strcpy_s(scoredata.grade, grades[buff[12]]);
 	}
 }
 

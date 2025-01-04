@@ -12,8 +12,9 @@ sqlite3_stmt* stmt;
 
 void saveScore(scoredata_t &scoredata) {
 	if (sqlite3_bind_text(stmt, 1, scoredata.title, -1, 0) != SQLITE_OK) {
-		logger.log("Error binding variable to insert statement");
+		logger.logTimestamp("Error binding variable to insert statement: ");
 		logger.log(sqlite3_errmsg(db));
+		logger.log("\n");
 	}
 	sqlite3_bind_int(stmt, 2, scoredata.mode);
 	sqlite3_bind_text(stmt, 3, scoredata.difficulty, -1, SQLITE_STATIC);
@@ -31,22 +32,26 @@ void saveScore(scoredata_t &scoredata) {
 	sqlite3_bind_text(stmt, 15, scoredata.random_op, -1, SQLITE_STATIC);
 	sqlite3_bind_text(stmt, 16, scoredata.auto_op, -1, SQLITE_STATIC);
 	if (sqlite3_step(stmt) != SQLITE_DONE) {
-		logger.log("Error saving score to database");
+		logger.logTimestamp("Error saving score to database: ");
 		logger.log(sqlite3_errmsg(db));
+		logger.log("\n");
 	}
 	else {
-		logger.log("score saved!");
+		logger.logTimestamp("Score saved for song: ");
+		logger.log(scoredata.title);
+		logger.log("\n");
 	}
 	if (sqlite3_reset(stmt) != SQLITE_OK) {
-		logger.log("Error resetting insert statement");
+		logger.logTimestamp("Error resetting insert statement: ");
 		logger.log(sqlite3_errmsg(db));
+		logger.log("\n");
 	}
 }
 
 // stdcall to clean up stack from within function, don't have to do it in asm
 void __stdcall getResultsScreenData() {
 	if (readInt(battleAddr) != 0) {
-		logger.log("In battle mode, skipping score");
+		logger.logTimestamp("In battle mode, skipping score\n");
 		return;
 	}
 
@@ -126,8 +131,9 @@ int dbInit(char dbPath[]) {
 	int rc;
 	rc = sqlite3_open(dbPath, &db);
 	if (rc != SQLITE_OK) {
-		logger.log("Error opening database");
+		logger.logTimestamp("Error opening database: ");
 		logger.log(sqlite3_errmsg(db));
+		logger.log("\n");
 		return 1;
 	}
 
@@ -154,8 +160,9 @@ int dbInit(char dbPath[]) {
 	char* errormsg;
 	rc = sqlite3_exec(db, sql, NULL, NULL, &errormsg);
 	if (rc != SQLITE_OK) {
-		logger.log("Error writing to database");
+		logger.logTimestamp("Error writing to database: ");
 		logger.log(errormsg);
+		logger.log("\n");
 		sqlite3_free(errormsg);
 		sqlite3_close(db);
 		return 1;
@@ -167,13 +174,14 @@ int dbInit(char dbPath[]) {
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 	rc = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
 	if (rc != SQLITE_OK) {
-		logger.log("Error preparing database insert statement");
+		logger.logTimestamp("Error preparing database insert statement: ");
 		logger.log(sqlite3_errmsg(db));
+		logger.log("\n");
 		sqlite3_close(db);
 		return 1;
 	}
 	else {
-		logger.log("Database opened successfully");
+		logger.logTimestamp("Database opened successfully\n");
 	}
 	return 0;
 }
@@ -199,13 +207,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			logger.open("lightfall.log");
 			strcpy_s(dbPath, "scores.db");
 		}
-		logger.log("Starting up...");
+		logger.logTimestamp("Starting up...\n");
 
 		LPCSTR twoezconfig = ".\\2EZ.ini";
 		// Short sleep to fix crash when using legitimate data with dongle, can be overriden in 2EZ.ini if causing issues.
 		Sleep(GetPrivateProfileIntA("Settings", "ShimDelay", 10, twoezconfig));
 		if (GetPrivateProfileIntA("Settings", "GameVer", 21, twoezconfig) != 21) {
-			logger.log("Game version not Final: EX, stopping");
+			logger.logTimestamp("Game version not Final: EX, stopping\n");
 			break;
 		}
 		if (dbInit(dbPath) != 0) {
@@ -217,7 +225,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Something like MinHook or Detours couldn't easily be used, so I manually patched in a jump instead
 		patchJump(resScreenJumpAddr, (LPBYTE)resScreenDetour);
 		
-		logger.log("Hook created, ready to save scores");
+		logger.logTimestamp("Hook created, ready to save scores\n");
 		break;
 	}
 	case DLL_THREAD_ATTACH:
