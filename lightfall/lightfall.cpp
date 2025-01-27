@@ -59,7 +59,9 @@ void __stdcall getResultsScreenData() {
 	scoredata_t scoredata = {};
 	scoredata.mode = readInt(modeAddr);
 	readScoreArray(scoreArrayAddr, scoredata);
-	scoredata.stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
+	// 0-3 for stages 1-4, some values are offset by it
+	// Saving this mainly for keeping track of song order in courses
+	scoredata.stage = readInt(stageAddr);
 	scoredata.rate = readInt(rateAddr + (scoredata.stage * 4));
 	scoredata.level = readInt(levelAddr);
 
@@ -157,7 +159,8 @@ int dbInit(char dbPath[]) {
 		"fail INTEGER,"
 		"max_combo INTEGER,"
 		"random TEXT,"
-		"auto TEXT);";
+		"auto TEXT,"
+		"stage INTEGER);";
 	char* errormsg;
 	rc = sqlite3_exec(db, sql, NULL, NULL, &errormsg);
 	if (rc != SQLITE_OK) {
@@ -195,18 +198,18 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			logger.disabled = true;
 		}
 
-		char savePath[MAX_PATH];
-		GetPrivateProfileStringA("Settings", "SavePath", NULL, savePath, MAX_PATH, config);
-		if (savePath != NULL) {
+		char dbPath[MAX_PATH];
+		GetPrivateProfileStringA("Settings", "SavePath", NULL, dbPath, MAX_PATH, config);
+		if (dbPath != NULL) {
 			char buff[MAX_PATH];
-			strcpy_s(buff, savePath);
+			strcpy_s(buff, dbPath);
 			PathAppendA(buff, "lightfall.log");
 			logger.open(buff);
-			PathAppendA(savePath, "scores.db");
+			PathAppendA(dbPath, "scores.db");
 		}
 		else {
 			logger.open("lightfall.log");
-			strcpy_s(savePath, "scores.db");
+			strcpy_s(dbPath, "scores.db");
 		}
 		logger.logTimestamp("Starting up...\n");
 
@@ -217,7 +220,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			logger.logTimestamp("Game version not Final: EX, stopping\n");
 			break;
 		}
-		if (dbInit(savePath) != 0) {
+		if (dbInit(dbPath) != 0) {
 			break;
 		}
 
