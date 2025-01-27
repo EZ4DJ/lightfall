@@ -31,6 +31,7 @@ void saveScore(scoredata_t &scoredata) {
 	sqlite3_bind_int(stmt, 14, scoredata.max_combo);
 	sqlite3_bind_text(stmt, 15, scoredata.random_op, -1, SQLITE_STATIC);
 	sqlite3_bind_text(stmt, 16, scoredata.auto_op, -1, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 17, scoredata.stage);
 	if (sqlite3_step(stmt) != SQLITE_DONE) {
 		logger.logTimestamp("Error saving score to database: ");
 		logger.log(sqlite3_errmsg(db));
@@ -58,8 +59,8 @@ void __stdcall getResultsScreenData() {
 	scoredata_t scoredata = {};
 	scoredata.mode = readInt(modeAddr);
 	readScoreArray(scoreArrayAddr, scoredata);
-	uint32_t stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
-	scoredata.rate = readInt(rateAddr + (stage * 4));
+	scoredata.stage = readInt(stageAddr); // 0-3 for stages 1-4, some values are offset by it
+	scoredata.rate = readInt(rateAddr + (scoredata.stage * 4));
 	scoredata.level = readInt(levelAddr);
 
 	if (scoredata.mode == 12) { // Separate title logic for CV2
@@ -67,7 +68,7 @@ void __stdcall getResultsScreenData() {
 	}
 	else {
 		char discName[128];
-		readString(discName, discNameAddr + (stage * 128), 128);
+		readString(discName, discNameAddr + (scoredata.stage * 128), 128);
 		// Disc name formatted either as title or title-diff if difficulty is above NM
 		// String slicing to extract data
 		size_t dashPos = strcspn(discName, "-");
@@ -169,9 +170,9 @@ int dbInit(char dbPath[]) {
 	}
 	
 	sql = // Preparing insert statement
-		"INSERT INTO score(title, mode, difficulty, level, score, rate, "
-		"grade, total_notes, kool, cool, good, miss, fail, max_combo, random, auto) "
-		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+		"INSERT INTO score(title, mode, difficulty, level, score, rate, grade, "
+		"total_notes, kool, cool, good, miss, fail, max_combo, random, auto, stage) "
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 	rc = sqlite3_prepare_v2(db, sql, strlen(sql), &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		logger.logTimestamp("Error preparing database insert statement: ");
@@ -194,18 +195,18 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			logger.disabled = true;
 		}
 
-		char dbPath[MAX_PATH];
-		GetPrivateProfileStringA("Settings", "SavePath", NULL, dbPath, MAX_PATH, config);
-		if (dbPath != NULL) {
+		char savePath[MAX_PATH];
+		GetPrivateProfileStringA("Settings", "SavePath", NULL, savePath, MAX_PATH, config);
+		if (savePath != NULL) {
 			char buff[MAX_PATH];
-			strcpy_s(buff, dbPath);
+			strcpy_s(buff, savePath);
 			PathAppendA(buff, "lightfall.log");
 			logger.open(buff);
-			PathAppendA(dbPath, "scores.db");
+			PathAppendA(savePath, "scores.db");
 		}
 		else {
 			logger.open("lightfall.log");
-			strcpy_s(dbPath, "scores.db");
+			strcpy_s(savePath, "scores.db");
 		}
 		logger.logTimestamp("Starting up...\n");
 
@@ -216,7 +217,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			logger.logTimestamp("Game version not Final: EX, stopping\n");
 			break;
 		}
-		if (dbInit(dbPath) != 0) {
+		if (dbInit(savePath) != 0) {
 			break;
 		}
 

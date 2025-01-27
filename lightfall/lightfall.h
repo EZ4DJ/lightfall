@@ -43,6 +43,7 @@ struct scoredata_t {
 	uint32_t max_combo;
 	char random_op[4];
 	char auto_op[4];
+	uint32_t stage;
 };
 
 void readScoreArray(uintptr_t addr, scoredata_t &scoredata) {
