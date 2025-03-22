@@ -1,37 +1,31 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <ctime>
 
-class Logger {
-public:
-	bool disabled = false;
-	void open(const std::string& filename) {
-		if (disabled) { return; }
-		logFile.open(filename, std::fstream::app);
-	}
-	~Logger() {
-		if (disabled) { return; }
-		logFile.close();
-	}
-	void log(const std::string& message) {
-		if (disabled) { return; }
-		struct tm newtime;
-		time_t now = time(0);
-		localtime_s(&newtime, &now);
-		char timestamp[20];
-		strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &newtime);
+#define log(format, ...) Logger::write(format, ## __VA_ARGS__)
 
-		std::ostringstream logEntry;
-		logEntry << "[" << timestamp << "] " << message;
-		if (logFile.is_open()) {
-			logFile << logEntry.str();
-			logFile.flush(); // Ensure immediate write to file
+class Logger
+{
+	public:
+		static inline std::string getTimestamp()
+		{
+			struct tm newtime;
+			time_t now = time(0);
+			localtime_s(&newtime, &now);
+
+			char timestamp[23];
+
+			strftime(timestamp, sizeof(timestamp), "[%Y-%m-%d %H:%M:%S] ", &newtime);
+
+			return std::string(timestamp);
 		}
-	}
-private:
-	std::ofstream logFile;
+
+		template <typename... Args> static void write(const std::string& format, Args... args)
+		{
+			auto message = std::string(getTimestamp() + format + "\n");
+
+			printf_s(message.c_str(), args...);
+		}
+
 };

@@ -12,6 +12,7 @@ constexpr uintptr_t rateAddr = 0x1B2EBF8; // uint32
 constexpr uintptr_t stageAddr = 0x1B2E718; // uint32 0-3
 constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
 constexpr uintptr_t autoAddr = 0x1B5F178; // uint32 0-3
+
 // Each random/mirror option stored in separate address for some reason, this was a nightmare to find
 constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 0x1B2E998,
 									  0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
@@ -25,7 +26,8 @@ constexpr char* cv2Grades[] = { "F", "F", "D", "C", "B", "A", "A+" };
 uintptr_t resScreenJumpAddr = baseAddress + 0x0542C5;
 uintptr_t resScreenJumpBackAddr = resScreenJumpAddr + 5;
 
-struct scoredata_t {
+struct scoredata_t
+{
 	char title[128];
 	uint32_t mode;
 	char difficulty[128];
@@ -45,12 +47,14 @@ struct scoredata_t {
 	uint32_t stage;
 };
 
-void readScoreArray(uintptr_t addr, scoredata_t &scoredata) {
+void readScoreArray(uintptr_t addr, scoredata_t &scoredata)
+{
 	unsigned long OldProtection;
 	uint32_t buff[13];
 	VirtualProtect((LPVOID)(addr), sizeof(uint32_t) * 13, PAGE_EXECUTE_READWRITE, &OldProtection);
 	memcpy(&buff, (LPVOID)(addr), sizeof(uint32_t) * 13);
 	VirtualProtect((LPVOID)(addr), sizeof(uint32_t) * 13, OldProtection, NULL);
+
 	scoredata.total_notes = buff[0];
 	scoredata.fail = buff[2];
 	scoredata.miss = buff[3];
@@ -59,10 +63,14 @@ void readScoreArray(uintptr_t addr, scoredata_t &scoredata) {
 	scoredata.kool = buff[6];
 	scoredata.max_combo = buff[8];
 	scoredata.score = buff[9];
-	if (scoredata.mode == 12) { // CV2 uses different grades
+
+	if (scoredata.mode == 12) // CV2 uses different grades
+	{ 
 		strcpy_s(scoredata.grade, cv2Grades[buff[12]]);
 	}
-	else {
+
+	else
+	{
 		strcpy_s(scoredata.grade, grades[buff[12]]);
 	}
 }

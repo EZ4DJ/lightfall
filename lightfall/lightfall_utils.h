@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.h"
+#include <cstdint>
 #include <Windows.h>
 
 uint32_t readInt(uintptr_t addr) {
@@ -19,9 +19,10 @@ void readString(char buffer[], uintptr_t addr, size_t size) {
 	VirtualProtect((LPVOID)(addr), size, OldProtection, NULL);
 }
 
-void patchJump(uintptr_t targetAddr, LPBYTE detourAddr) {
+void patchHook(uintptr_t targetAddr, LPBYTE detourAddr) {
 	// Calculating relative address to detour function
 	uint32_t relDetourAddr = (uint32_t)(detourAddr - (targetAddr + 5));
+
 	unsigned long OldProtection;
 	VirtualProtect((LPVOID)(targetAddr), 5, PAGE_EXECUTE_READWRITE, &OldProtection);
 	*(BYTE*)(targetAddr) = 0xE9; // jump opcode
