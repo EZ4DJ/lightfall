@@ -14,7 +14,7 @@ class Logger
 			time_t now = time(0);
 			localtime_s(&newtime, &now);
 
-			char timestamp[23];
+			static char timestamp[23];
 
 			strftime(timestamp, sizeof(timestamp), "[%Y-%m-%d %H:%M:%S] ", &newtime);
 
@@ -27,5 +27,4 @@ class Logger
 
 			printf_s(message.c_str(), args...);
 		}
-
 };

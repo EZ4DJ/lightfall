@@ -15,18 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lightfall.cpp">
+    <ClCompile Include="src\util\logger.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lightfall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="logger.h">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="src\hook\memory_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hook\score_hook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\db\local_db.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\context.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lightfall.h">
+    <ClInclude Include="src\hook\memory_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lightfall_utils.h">
+    <ClInclude Include="src\hook\score_hook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ez2ac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\db\local_db.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
