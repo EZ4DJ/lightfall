@@ -1,13 +1,12 @@
 #include <Windows.h>
 #include <shlwapi.h>
 #include "context.h"
-#include "util/logger.h"
 
 namespace lightfall
 {
 	Context context;
 
-	int Context::initConfig()
+	void Context::initConfig()
 	{
 		LPCSTR lightfallConfig = ".\\lightfall.ini";
 
@@ -16,34 +15,23 @@ namespace lightfall
 
 		m_savePath = std::string(savePath);
 
-		FILE* f;
 		PathAppendA(savePath, "lightfall.log");
-		freopen_s(&f, savePath, "a", stdout);
-
-		log("Starting up...");
+#pragma warning(suppress: 4996)
+		freopen(savePath, "a", stdout);
 
 		LPCSTR twoEzConfig = ".\\2EZ.ini";
 		
-		// Short sleep to fix crash when using legitimate data with dongle, can be overriden in 2EZ.ini if causing issues.
+		// Short sleep to fix crash when using legitimate data with dongle, can be overriden in 2EZ.ini if causing issues
 		Sleep(GetPrivateProfileIntA("Settings", "ShimDelay", 10, twoEzConfig));
 
 		m_gameVer = GetPrivateProfileIntA("Settings", "GameVer", 21, twoEzConfig);
 
-		if (m_gameVer != 21)
-		{
-			log("Game version not Final: EX, stopping!");
-			return 1;
-		}
-
 		m_localMode = GetPrivateProfileIntA("Settings", "LocalMode", 1, lightfallConfig);
+	}
 
-		if (m_localMode)
-		{
-			log("Starting in local mode, opening database...");
-			return localDB.initDB(m_savePath);
-		}
-
-		return 0;
+	Context::~Context()
+	{
+		fclose(stdout);
 	}
 
 	int Context::getLocalMode()
@@ -53,7 +41,7 @@ namespace lightfall
 
 	std::string Context::getApiKey()
 	{
-		return std::string();
+		return m_apiKey;
 	}
 
 	std::string Context::getSavePath()
@@ -61,7 +49,7 @@ namespace lightfall
 		return m_savePath;
 	}
 
-	uint8_t Context::getGameVer()
+	int Context::getGameVer()
 	{
 		return m_gameVer;
 	}

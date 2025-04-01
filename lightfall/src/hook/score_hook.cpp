@@ -9,7 +9,9 @@ using lightfall::readInt;
 using lightfall::readChar;
 
 uintptr_t scoreArrayAddr;
-uintptr_t baseAddr = (uintptr_t)GetModuleHandleA(NULL); // Should always be 0x400000 but would rather not hardcode it
+
+// This should always be 0x400000 but would rather not hardcode it
+uintptr_t baseAddr = (uintptr_t)GetModuleHandleA(NULL);
 uintptr_t hookAddr = baseAddr + 0x542C5;
 uintptr_t jumpBackAddr = hookAddr + 5;
 
@@ -25,10 +27,11 @@ void __stdcall parseScore()
 	ez2ac::scoredata_t scoredata = {};
 
 	scoredata.mode = readInt(ez2ac::modeAddr);
-	lightfall::readScoreArray(scoreArrayAddr, scoredata);
 	scoredata.stage = readInt(ez2ac::stageAddr);
 	scoredata.rate = readInt(ez2ac::rateAddr + (scoredata.stage * 4));
 	scoredata.level = readInt(ez2ac::levelAddr);
+
+	lightfall::readScoreArray(scoreArrayAddr, scoredata);
 
 	if (scoredata.mode != 12)
 	{
@@ -53,7 +56,7 @@ void __stdcall parseScore()
 
 	else
 	{
-		readChar(scoredata.title, ez2ac::cv2SongNameAddr, 32);
+		readChar(scoredata.title, ez2ac::cv2TitleAddr, 32);
 	}
 
 	if (6 <= scoredata.mode && scoredata.mode <= 9)
@@ -67,7 +70,7 @@ void __stdcall parseScore()
 		if (readInt(ez2ac::randomAddrs[i]))
 		{
 			randomFound = true;
-			strcpy_s(scoredata.random_op, ez2ac::randomNames[i]);
+			strcpy_s(scoredata.random_op, ez2ac::randomOpts[i]);
 			break;
 		}
 	}
@@ -85,15 +88,15 @@ void __stdcall parseScore()
 
 	else if (scoredata.mode == 5 || scoredata.mode == 9)
 	{
-		strcpy_s(scoredata.auto_op, ez2ac::autoOps14K[readInt(ez2ac::autoAddr)]);
+		strcpy_s(scoredata.auto_op, ez2ac::autoOpts14K[readInt(ez2ac::autoAddr)]);
 	}
 
 	else
 	{
-		strcpy_s(scoredata.auto_op, ez2ac::autoOps[readInt(ez2ac::autoAddr)]);
+		strcpy_s(scoredata.auto_op, ez2ac::autoOpts[readInt(ez2ac::autoAddr)]);
 	}
 
-	if (lightfall::context.getLocalMode() == 1)
+	if (lightfall::context.getLocalMode())
 	{
 		lightfall::context.localDB.writeDB(scoredata);
 	}
@@ -130,6 +133,6 @@ namespace lightfall
 		memcpy((LPVOID)(hookAddr + 1), (LPVOID)&relDetourAddr, 4);
 		VirtualProtect((LPVOID)(hookAddr), 5, oldProtection, NULL);
 
-		log("Hook created at 0x%X, ready to save scores!", hookAddr);
+		log("Hook created at address 0x%X, ready to save scores!", hookAddr);
 	}
 }

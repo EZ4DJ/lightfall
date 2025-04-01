@@ -2,6 +2,7 @@
 
 #include <string>
 #include <ctime>
+#include <io.h>
 
 #define log(format, ...) Logger::write(format, ## __VA_ARGS__)
 
@@ -21,10 +22,13 @@ class Logger
 			return std::string(timestamp);
 		}
 
-		template <typename... Args> static void write(const std::string& format, Args... args)
+		template <typename... Args> static void write(const std::string &format, Args... args)
 		{
-			auto message = std::string(getTimestamp() + format + "\n");
+			std::string message = std::string(getTimestamp() + format + "\n");
 
 			printf_s(message.c_str(), args...);
+
+			fflush(stdout);
+			_commit(_fileno(stdout));
 		}
 };

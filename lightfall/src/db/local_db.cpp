@@ -5,19 +5,18 @@
 
 namespace lightfall
 {
-	int LocalDB::initDB(std::string savePath)
+	int LocalDB::initDB(std::string &savePath)
 	{
-		int rc;
-
 		char dbPath[MAX_PATH];
 		strcpy_s(dbPath, savePath.c_str());
 		PathAppendA(dbPath, "scores.db");
 
+		int rc;
 		rc = sqlite3_open(dbPath, &db);
 
 		if (rc != SQLITE_OK)
 		{
-			log("Error opening database: " + std::string(sqlite3_errmsg(db)));
+			log("Error opening database: %s", sqlite3_errmsg(db));
 			return 1;
 		}
 
@@ -49,7 +48,7 @@ namespace lightfall
 
 		if (rc != SQLITE_OK)
 		{
-			log("Error writing to database: " + std::string(errormsg));
+			log("Error writing to database: %s", errormsg);
 			sqlite3_free(errormsg);
 			sqlite3_close(db);
 
@@ -64,7 +63,7 @@ namespace lightfall
 
 		if (rc != SQLITE_OK)
 		{
-			log("Error preparing database insert statement: " + std::string(sqlite3_errmsg(db)));
+			log("Error preparing database insert statement: %s", sqlite3_errmsg(db));
 			sqlite3_close(db);
 
 			return 1;
@@ -82,7 +81,7 @@ namespace lightfall
 	{
 		if (sqlite3_bind_text(stmt, 1, scoredata.title, -1, 0) != SQLITE_OK)
 		{
-			log("Error binding variable to insert statement: " + std::string(sqlite3_errmsg(db)));
+			log("Error binding variable to database insert statement: %s", sqlite3_errmsg(db));
 		}
 
 		sqlite3_bind_int(stmt, 2, scoredata.mode);
@@ -104,17 +103,17 @@ namespace lightfall
 
 		if (sqlite3_step(stmt) != SQLITE_DONE)
 		{
-			log("Error saving score to database: " + std::string(sqlite3_errmsg(db)));
+			log("Error saving score to database: %s", sqlite3_errmsg(db));
 		}
 
 		else
 		{
-			log("Score saved for song: " + std::string(scoredata.title) + "\n");
+			log("Score saved for song: %s", scoredata.title);
 		}
 
 		if (sqlite3_reset(stmt) != SQLITE_OK)
 		{
-			log("Error resetting insert statement: " + std::string(sqlite3_errmsg(db)));
+			log("Error resetting database insert statement: %s", sqlite3_errmsg(db));
 		}
 	}
 }

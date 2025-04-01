@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <string>
 #include "db/local_db.h"
 
@@ -9,12 +8,14 @@ namespace lightfall
 	class Context
 	{
 		public:
-			int initConfig();
+			void initConfig();
+
+			~Context();
 
 			int getLocalMode();
 			std::string getApiKey();
 			std::string getSavePath();
-			uint8_t getGameVer();
+			int getGameVer();
 
 			LocalDB localDB;
 
@@ -22,7 +23,7 @@ namespace lightfall
 			int m_localMode;
 			std::string m_apiKey;
 			std::string m_savePath;
-			uint8_t m_gameVer;
+			int m_gameVer;
 	};
 
 	extern Context context;

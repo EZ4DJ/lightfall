@@ -2,8 +2,11 @@
 // 
 
 #include <Windows.h>
-#include "hook/score_hook.h"
 #include "context.h"
+#include "hook/score_hook.h"
+#include "util/logger.h"
+
+using lightfall::context;
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
@@ -11,9 +14,24 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	{
 	case DLL_PROCESS_ATTACH: 
 	{
-		if (lightfall::context.initConfig() != 0)
+		context.initConfig();
+
+		log("Starting up...");
+
+		if (context.getGameVer() != 21)
 		{
+			log("Game version not Final: EX, stopping!");
 			break;
+		}
+
+		if (context.getLocalMode())
+		{
+			log("Starting in local mode, opening database...");
+
+			if (context.localDB.initDB(context.getSavePath()))
+			{
+				break;
+			}
 		}
 
 		lightfall::installHook();

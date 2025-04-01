@@ -9,7 +9,7 @@ namespace lightfall
 	class LocalDB
 	{
 		public:
-			int initDB(std::string);
+			int initDB(std::string &savePath);
 			void writeDB(ez2ac::scoredata_t &scoredata);
 
 		private:
