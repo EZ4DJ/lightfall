@@ -1,0 +1,13 @@
+[submodule "lightfall/external/cppzmq"]
+	path = lightfall/external/cppzmq
+	url = https://github.com/zeromq/cppzmq.git
+[submodule "lightfall/external/json"]
+	path = lightfall/external/json
+	url = https://github.com/nlohmann/json.git
+[submodule "lightfall/external/libzmq"]
+	path = lightfall/external/libzmq
+	url = https://github.com/zeromq/libzmq.git
+[submodule "lightfall/external/cpr"]
+	path = lightfall/external/cpr
+	url = https://github.com/libcpr/cpr.git
+	branch = 1.9.x
