@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\libcpr.1.9.9\build\native\libcpr.props" Condition="Exists('..\packages\libcpr.1.9.9\build\native\libcpr.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -92,12 +93,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LIGHTFALL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lightfall\include;$(SolutionDir)lightfall\external\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir);$(ProjectDir)lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir);$(ProjectDir)lib;</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;shlwapi.lib;sqlite3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -125,7 +126,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIGHTFALL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)lightfall\include;$(SolutionDir)lightfall\external\json\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -162,9 +163,10 @@
     <ClCompile Include="src\hook\memory_utils.cpp" />
     <ClCompile Include="src\hook\score_hook.cpp" />
     <ClCompile Include="src\lightfall.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)lib</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="src\network\network.cpp" />
     <ClCompile Include="src\util\logger.h" />
   </ItemGroup>
   <ItemGroup>
@@ -173,8 +175,20 @@
     <ClInclude Include="src\ez2ac.h" />
     <ClInclude Include="src\hook\memory_utils.h" />
     <ClInclude Include="src\hook\score_hook.h" />
+    <ClInclude Include="src\network\network.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\libcpr.1.9.9\build\native\libcpr.targets" Condition="Exists('..\packages\libcpr.1.9.9\build\native\libcpr.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\libcpr.1.9.9\build\native\libcpr.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libcpr.1.9.9\build\native\libcpr.props'))" />
+    <Error Condition="!Exists('..\packages\libcpr.1.9.9\build\native\libcpr.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libcpr.1.9.9\build\native\libcpr.targets'))" />
+  </Target>
 </Project>

@@ -1,6 +1,7 @@
+#include "local_db.h"
+
 #include <Windows.h>
 #include <shlwapi.h>
-#include "local_db.h"
 #include "../util/logger.h"
 
 namespace lightfall
@@ -90,6 +91,7 @@ namespace lightfall
 		sqlite3_bind_int(stmt, 5, scoredata.score);
 		sqlite3_bind_int(stmt, 6, scoredata.rate);
 		sqlite3_bind_text(stmt, 7, scoredata.grade, -1, SQLITE_STATIC);
+
 		sqlite3_bind_int(stmt, 8, scoredata.total_notes);
 		sqlite3_bind_int(stmt, 9, scoredata.kool);
 		sqlite3_bind_int(stmt, 10, scoredata.cool);
@@ -97,6 +99,7 @@ namespace lightfall
 		sqlite3_bind_int(stmt, 12, scoredata.miss);
 		sqlite3_bind_int(stmt, 13, scoredata.fail);
 		sqlite3_bind_int(stmt, 14, scoredata.max_combo);
+
 		sqlite3_bind_text(stmt, 15, scoredata.random_op, -1, SQLITE_STATIC);
 		sqlite3_bind_text(stmt, 16, scoredata.auto_op, -1, SQLITE_STATIC);
 		sqlite3_bind_int(stmt, 17, scoredata.stage);
@@ -108,7 +111,7 @@ namespace lightfall
 
 		else
 		{
-			log("Score saved for song: %s", scoredata.title);
+			log("Score saved for song %s", scoredata.title);
 		}
 
 		if (sqlite3_reset(stmt) != SQLITE_OK)

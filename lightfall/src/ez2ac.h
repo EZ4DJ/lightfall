@@ -9,14 +9,14 @@ namespace ez2ac
 	constexpr uintptr_t cv2TitleAddr = 0x1B2EB80; // char[32]
 	constexpr uintptr_t courseNameAddr = 0x1B2E728; // char[128]
 	constexpr uintptr_t levelAddr = 0x1B2EC0C; // uint32, chart number in CV2
-	constexpr uintptr_t rateAddr = 0x1B2EBF8; // uint32
+	constexpr uintptr_t rateAddr = 0x1B2EBF8; // uint32, rate * 10
 	constexpr uintptr_t stageAddr = 0x1B2E718; // uint32, 0-3
 	constexpr uintptr_t battleAddr = 0x1B2EF6C; // uint32
 	constexpr uintptr_t autoAddr = 0x1B5F178; // uint32, 0-3
 
 	// Each random/mirror option stored in separate addresses, this was a nightmare to find
-	constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 0x1B2E998,
-										  0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
+	constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0,
+		0x1B2E960, 0x1B2E998, 0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
 	constexpr char* randomOpts[] = { "ON", "S", "PS", "M", "H", "H", "F", "F", "N", "K", "SP" };
 
 	constexpr char* autoOpts[] = { "OFF", "S", "P", "SP" };

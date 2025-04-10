@@ -1,5 +1,6 @@
-#include <Windows.h>
 #include "memory_utils.h"
+
+#include <Windows.h>
 
 namespace lightfall
 {

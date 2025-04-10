@@ -1,6 +1,7 @@
+#include "context.h"
+
 #include <Windows.h>
 #include <shlwapi.h>
-#include "context.h"
 
 namespace lightfall
 {
@@ -27,6 +28,11 @@ namespace lightfall
 		m_gameVer = GetPrivateProfileIntA("Settings", "GameVer", 21, twoEzConfig);
 
 		m_localMode = GetPrivateProfileIntA("Settings", "LocalMode", 1, lightfallConfig);
+
+		char buff[64];
+		GetPrivateProfileStringA("Settings", "ApiKey", NULL, buff, 64, lightfallConfig);
+
+		m_apiKey = std::string(buff);
 	}
 
 	Context::~Context()
