@@ -1,11 +1,9 @@
-#include "score_hook.h"
-
 #include <Windows.h>
+#include "score_hook.h"
 #include "memory_utils.h"
 #include "../util/logger.h"
 #include "../ez2ac.h"
 #include "../context.h"
-#include "../network/network.h"
 
 using lightfall::readInt;
 using lightfall::readChar;
@@ -102,11 +100,6 @@ void __stdcall parseScore()
 	{
 		lightfall::context.localDB.writeDB(scoredata);
 	}
-
-	else
-	{
-		lightfall::submitScore(scoredata);
-	}
 }
 
 __declspec(naked) void resScreenDetour()
@@ -140,6 +133,6 @@ namespace lightfall
 		memcpy((LPVOID)(hookAddr + 1), (LPVOID)&relDetourAddr, 4);
 		VirtualProtect((LPVOID)(hookAddr), 5, oldProtection, NULL);
 
-		log("Hook created at address 0x%X, ready to save scores.", hookAddr);
+		log("Hook created at address 0x%X, ready to save scores!", hookAddr);
 	}
 }
