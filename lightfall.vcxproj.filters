@@ -41,9 +41,6 @@
     <ClInclude Include="src\context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\sqlite3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\memory_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>

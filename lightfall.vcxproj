@@ -168,7 +168,6 @@
     <ClCompile Include="src\logger.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="src\context.h" />
     <ClInclude Include="src\local_db.h" />
     <ClInclude Include="src\ez2ac.h" />
