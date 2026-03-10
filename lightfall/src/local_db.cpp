@@ -1,7 +1,8 @@
+#include "local_db.h"
+
 #include <Windows.h>
 #include <shlwapi.h>
-#include "local_db.h"
-#include "../util/logger.h"
+#include "logger.h"
 
 namespace lightfall
 {

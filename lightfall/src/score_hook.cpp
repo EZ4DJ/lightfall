@@ -1,9 +1,10 @@
-#include <Windows.h>
 #include "score_hook.h"
+
+#include <Windows.h>
 #include "memory_utils.h"
-#include "../util/logger.h"
-#include "../ez2ac.h"
-#include "../context.h"
+#include "logger.h"
+#include "ez2ac.h"
+#include "context.h"
 
 using lightfall::readInt;
 using lightfall::readChar;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "../ez2ac.h"
+#include "ez2ac.h"
 #include "sqlite3.h"
 
 namespace lightfall

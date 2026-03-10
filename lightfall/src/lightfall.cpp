@@ -3,8 +3,8 @@
 
 #include <Windows.h>
 #include "context.h"
-#include "hook/score_hook.h"
-#include "util/logger.h"
+#include "score_hook.h"
+#include "logger.h"
 
 using lightfall::context;
 

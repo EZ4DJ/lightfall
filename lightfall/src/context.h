@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "db/local_db.h"
+#include "local_db.h"
 
 namespace lightfall
 {

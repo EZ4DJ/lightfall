@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ez2ac.h"
+#include "ez2ac.h"
 
 namespace lightfall
 {

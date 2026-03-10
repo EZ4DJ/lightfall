@@ -158,22 +158,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\context.cpp" />
-    <ClCompile Include="src\db\local_db.cpp" />
-    <ClCompile Include="src\hook\memory_utils.cpp" />
-    <ClCompile Include="src\hook\score_hook.cpp" />
+    <ClCompile Include="src\local_db.cpp" />
+    <ClCompile Include="src\memory_utils.cpp" />
+    <ClCompile Include="src\score_hook.cpp" />
     <ClCompile Include="src\lightfall.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)lib</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)lib</AdditionalIncludeDirectories>
     </ClCompile>
-    <ClCompile Include="src\util\logger.h" />
+    <ClCompile Include="src\logger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="src\context.h" />
-    <ClInclude Include="src\db\local_db.h" />
+    <ClInclude Include="src\local_db.h" />
     <ClInclude Include="src\ez2ac.h" />
-    <ClInclude Include="src\hook\memory_utils.h" />
-    <ClInclude Include="src\hook\score_hook.h" />
+    <ClInclude Include="src\memory_utils.h" />
+    <ClInclude Include="src\score_hook.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
