@@ -25,6 +25,10 @@ namespace ez2ac
 	constexpr char* grades[] = { "F", "D", "C", "B", "A", "A+", "S", "S+", "S++", "S+++", "S++++" };
 	constexpr char* cv2Grades[] = { "F", "F", "D", "C", "B", "A", "A+" };
 
+	// numbered 0-12, can use int conversion to compare to mode number stored in memory
+	// the underscores are a little ugly but enums can't start with a number
+	enum Mode : int { _5only, _5ruby, _5k, _7k, _10k, _14k, _5course, _7course, _10course, _14course, _catch, _turntable, _cv2 };
+
 	struct scoredata_t
 	{
 		char title[128];
@@ -46,18 +50,3 @@ namespace ez2ac
 		uint32_t stage;
 	};
 }
-
-// modes:
-// 0: 5k only
-// 1: 5k ruby
-// 2: 5k standard
-// 3: 7k standard
-// 4: 10k maniac
-// 5: 14k maniac
-// 6: 5k course
-// 7: 7k course
-// 8: 10k course
-// 9: 14k course
-// 10: catch
-// 11: turntable
-// 12: CV2

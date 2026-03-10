@@ -2,7 +2,7 @@
 
 #include "ez2ac.h"
 
-namespace lightfall
+namespace mem
 {
 	uint32_t readInt(uintptr_t addr);
 	void readChar(char* buff, uintptr_t addr, size_t size);

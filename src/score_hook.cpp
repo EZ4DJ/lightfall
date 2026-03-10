@@ -6,8 +6,9 @@
 #include "ez2ac.h"
 #include "context.h"
 
-using lightfall::readInt;
-using lightfall::readChar;
+using mem::readInt;
+using mem::readChar;
+using ez2ac::Mode;
 
 uintptr_t scoreArrayAddr;
 
@@ -32,9 +33,9 @@ void __stdcall parseScore()
 	scoredata.rate = readInt(ez2ac::rateAddr + (scoredata.stage * 4));
 	scoredata.level = readInt(ez2ac::levelAddr);
 
-	lightfall::readScoreArray(scoreArrayAddr, scoredata);
+	mem::readScoreArray(scoreArrayAddr, scoredata);
 
-	if (scoredata.mode != 12)
+	if (scoredata.mode != Mode::_cv2)
 	{
 		char discName[128];
 		readChar(discName, ez2ac::discNameAddr + (scoredata.stage * 128), 128);
@@ -60,7 +61,7 @@ void __stdcall parseScore()
 		readChar(scoredata.title, ez2ac::cv2TitleAddr, 32);
 	}
 
-	if (6 <= scoredata.mode && scoredata.mode <= 9)
+	if (Mode::_5course <= scoredata.mode && scoredata.mode <= Mode::_14course)
 	{
 		readChar(scoredata.difficulty, ez2ac::courseNameAddr, 128);
 	}
@@ -81,13 +82,13 @@ void __stdcall parseScore()
 		strcpy_s(scoredata.random_op, "OFF");
 	}
 
-	if (scoredata.mode == 0 || scoredata.mode == 10 ||
-		scoredata.mode == 11 || scoredata.mode == 12)
+	if (scoredata.mode == Mode::_5only || scoredata.mode == Mode::_catch ||
+		scoredata.mode == Mode::_turntable || scoredata.mode == Mode::_cv2)
 	{
 		strcpy_s(scoredata.auto_op, "OFF");
 	}
 
-	else if (scoredata.mode == 5 || scoredata.mode == 9)
+	else if (scoredata.mode == Mode::_14k || scoredata.mode == Mode::_14course)
 	{
 		strcpy_s(scoredata.auto_op, ez2ac::autoOpts14K[readInt(ez2ac::autoAddr)]);
 	}

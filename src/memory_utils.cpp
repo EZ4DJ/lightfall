@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-namespace lightfall
+namespace mem
 {
 	uint32_t readInt(uintptr_t addr)
 	{
@@ -43,14 +43,14 @@ namespace lightfall
 		scoredata.max_combo = buff[8];
 		scoredata.score = buff[9];
 
-		if (scoredata.mode != 12)
+		if (scoredata.mode == ez2ac::Mode::_cv2)
 		{
-			strcpy_s(scoredata.grade, ez2ac::grades[buff[12]]);
+			strcpy_s(scoredata.grade, ez2ac::cv2Grades[buff[12]]);
 		}
 
 		else
 		{
-			strcpy_s(scoredata.grade, ez2ac::cv2Grades[buff[12]]);
+			strcpy_s(scoredata.grade, ez2ac::grades[buff[12]]);
 		}
 	}
 }
