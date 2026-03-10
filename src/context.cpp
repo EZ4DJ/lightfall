@@ -17,7 +17,7 @@ namespace lightfall
 
 		PathAppendA(savePath, "lightfall.log");
 #pragma warning(suppress: 4996)
-		freopen(savePath, "a", stdout);
+		freopen(savePath, "w", stdout);
 
 		LPCSTR twoEzConfig = ".\\2EZ.ini";
 		
