@@ -168,11 +168,16 @@
     <ClCompile Include="src\logger.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\json.hpp" />
+    <ClInclude Include="include\sqlite3.h" />
     <ClInclude Include="src\context.h" />
     <ClInclude Include="src\local_db.h" />
     <ClInclude Include="src\ez2ac.h" />
     <ClInclude Include="src\memory_utils.h" />
     <ClInclude Include="src\score_hook.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\sqlite3.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

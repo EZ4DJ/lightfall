@@ -50,5 +50,14 @@
     <ClInclude Include="src\local_db.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\sqlite3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\sqlite3.lib" />
   </ItemGroup>
 </Project>
