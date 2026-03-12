@@ -1,6 +1,7 @@
+#include "context.h"
+
 #include <Windows.h>
 #include <shlwapi.h>
-#include "context.h"
 
 namespace lightfall
 {

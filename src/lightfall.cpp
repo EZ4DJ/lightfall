@@ -1,5 +1,4 @@
 // LIGHTFALL: an EZ2AC Final EX score tracking hook
-// 
 
 #include <Windows.h>
 #include "context.h"

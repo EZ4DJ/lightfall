@@ -22,7 +22,7 @@ void __stdcall parseScore()
 {
 	if (readInt(ez2ac::battleAddr) != 0)
 	{
-		log("In battle mode, skipping score.");
+		log("In battle mode, skipping score");
 		return;
 	}
 
@@ -135,6 +135,6 @@ namespace lightfall
 		memcpy((LPVOID)(hookAddr + 1), (LPVOID)&relDetourAddr, 4);
 		VirtualProtect((LPVOID)(hookAddr), 5, oldProtection, NULL);
 
-		log("Hook created at address 0x%X, ready to save scores!", hookAddr);
+		log("Hook created at address 0x%X, ready to save scores", hookAddr);
 	}
 }

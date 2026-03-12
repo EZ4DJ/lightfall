@@ -27,7 +27,22 @@ namespace ez2ac
 
 	// numbered 0-12, can use int conversion to compare to mode number stored in memory
 	// the underscores are a little ugly but enums can't start with a number
-	enum Mode : int { _5only, _5ruby, _5k, _7k, _10k, _14k, _5course, _7course, _10course, _14course, _catch, _turntable, _cv2 };
+	enum Mode : int 
+	{ 
+		_5only, 
+		_5ruby, 
+		_5k, 
+		_7k, 
+		_10k, 
+		_14k, 
+		_5course, 
+		_7course,
+		_10course, 
+		_14course, 
+		_catch, 
+		_turntable, 
+		_cv2 
+	};
 
 	struct scoredata_t
 	{
