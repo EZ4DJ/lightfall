@@ -36,7 +36,12 @@ void __stdcall parseScore()
 
 	mem::readScoreArray(scoreArrayAddr, scoredata);
 
-	if (scoredata.mode != Mode::_cv2)
+	if (scoredata.mode == Mode::_cv2)
+	{
+		readChar(scoredata.title, ez2ac::cv2TitleAddr, 32);
+	}
+
+	else
 	{
 		char discName[128];
 		readChar(discName, ez2ac::discNameAddr + (scoredata.stage * 128), 128);
@@ -57,28 +62,21 @@ void __stdcall parseScore()
 		}
 	}
 
-	else
-	{
-		readChar(scoredata.title, ez2ac::cv2TitleAddr, 32);
-	}
-
 	if (Mode::_5course <= scoredata.mode && scoredata.mode <= Mode::_14course)
 	{
 		readChar(scoredata.difficulty, ez2ac::courseNameAddr, 128);
 	}
 
-	bool randomFound = false;
-	for (int i = 0; i < 11; i++)
+	for (int i = 0; i < (sizeof(ez2ac::randomAddrs) / sizeof(uintptr_t)); i++)
 	{
 		if (readInt(ez2ac::randomAddrs[i]))
 		{
-			randomFound = true;
 			strcpy_s(scoredata.random_op, ez2ac::randomOpts[i]);
 			break;
 		}
 	}
 
-	if (randomFound == false)
+	if (scoredata.random_op[0] == '\0')
 	{
 		strcpy_s(scoredata.random_op, "OFF");
 	}
@@ -101,7 +99,7 @@ void __stdcall parseScore()
 
 	if (lightfall::context.getLocalMode())
 	{
-		lightfall::context.localDB.writeDB(scoredata);
+		lightfall::context.localDB.writeDB();
 	}
 }
 

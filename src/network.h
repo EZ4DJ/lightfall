@@ -2,7 +2,6 @@
 
 #include <windows.h>
 #include <winhttp.h>
-#include "ez2ac.h"
 
 namespace lightfall
 {
@@ -12,7 +11,7 @@ namespace lightfall
 			void initNetwork();
 			~Network();
 
-			void submitScore(ez2ac::scoredata_t &scoredata);
+			void submitScore();
 
 		private:
 			HINTERNET session;

@@ -3,6 +3,9 @@
 #include <Windows.h>
 #include <shlwapi.h>
 #include "logger.h"
+#include "ez2ac.h"
+
+using ez2ac::scoredata;
 
 namespace lightfall
 {
@@ -84,7 +87,7 @@ namespace lightfall
 		return 0;
 	}
 
-	void LocalDB::writeDB(ez2ac::scoredata_t &scoredata)
+	void LocalDB::writeDB()
 	{
 		if (sqlite3_bind_text(stmt, 1, scoredata.title, -1, 0) != SQLITE_OK)
 		{

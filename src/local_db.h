@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include "ez2ac.h"
 #include "sqlite3.h"
 
 namespace lightfall
@@ -12,7 +11,7 @@ namespace lightfall
 			~LocalDB();
 
 			int initDB(std::string &savePath);
-			void writeDB(ez2ac::scoredata_t &scoredata);
+			void writeDB();
 
 		private:
 			sqlite3* db;

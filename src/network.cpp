@@ -3,6 +3,9 @@
 #include "json.hpp"
 #include "logger.h"
 #include "context.h"
+#include "ez2ac.h"
+
+using ez2ac::scoredata;
 
 namespace lightfall
 {
@@ -61,7 +64,7 @@ namespace lightfall
 		if (session) WinHttpCloseHandle(session);
 	}
 
-	void Network::submitScore(ez2ac::scoredata_t &scoredata)
+	void Network::submitScore()
 	{
 		nlohmann::json msg;
 
