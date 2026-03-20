@@ -28,6 +28,16 @@ namespace lightfall
 		m_gameVer = GetPrivateProfileIntA("Settings", "GameVer", 21, twoEzConfig);
 
 		m_localMode = GetPrivateProfileIntA("Settings", "LocalMode", 1, lightfallConfig);
+
+		wchar_t url[255];
+		GetPrivateProfileStringW(L"Settings", L"URL", NULL, url, 255, L".\\lightfall.ini");
+
+		m_URL = std::wstring(url);
+
+		wchar_t apiKey[65];
+		GetPrivateProfileStringW(L"Settings", L"apiKey", NULL, apiKey, 65, L".\\lightfall.ini");
+
+		m_apiKey = std::wstring(apiKey);
 	}
 
 	Context::~Context()
@@ -40,9 +50,9 @@ namespace lightfall
 		return m_localMode;
 	}
 
-	std::string Context::getApiKey()
+	int Context::getGameVer()
 	{
-		return m_apiKey;
+		return m_gameVer;
 	}
 
 	std::string Context::getSavePath()
@@ -50,8 +60,13 @@ namespace lightfall
 		return m_savePath;
 	}
 
-	int Context::getGameVer()
+	std::wstring Context::getURL()
 	{
-		return m_gameVer;
+		return m_URL;
+	}
+
+	std::wstring Context::getApiKey()
+	{
+		return m_apiKey;
 	}
 }

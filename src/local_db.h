@@ -9,9 +9,10 @@ namespace lightfall
 	class LocalDB
 	{
 		public:
+			~LocalDB();
+
 			int initDB(std::string &savePath);
 			void writeDB(ez2ac::scoredata_t &scoredata);
-			~LocalDB();
 
 		private:
 			sqlite3* db;

@@ -1,14 +1,66 @@
 #include "network.h"
 
-#include <windows.h>
-#include <winhttp.h>
 #include "json.hpp"
 #include "logger.h"
 #include "context.h"
 
 namespace lightfall
 {
-	void submitScore(ez2ac::scoredata_t &scoredata)
+	void Network::initNetwork()
+	{
+		URL_COMPONENTS components;
+		SecureZeroMemory(&components, sizeof(components));
+		components.dwStructSize = sizeof(components);
+		components.dwSchemeLength = static_cast<DWORD>(-1);
+		components.dwHostNameLength = static_cast<DWORD>(-1);
+		components.dwUrlPathLength = static_cast<DWORD>(-1);
+		components.dwExtraInfoLength = static_cast<DWORD>(-1);
+
+		if (!WinHttpCrackUrl(context.getURL().c_str(), 
+							 static_cast<DWORD>(wcslen(context.getURL().c_str())), 0, &components))
+		{
+			log("Failed to crack URL");
+			return;
+		}
+
+		std::wstring hostname{ components.lpszHostName, components.dwHostNameLength };
+		std::wstring path{ components.lpszUrlPath, components.dwUrlPathLength };
+
+		session = WinHttpOpen(L"lightfall", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+							  WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+
+		if (!session)
+		{
+			log("Failed to open WinHTTP session");
+			return;
+		}
+
+		connection = WinHttpConnect(session, hostname.c_str(), INTERNET_DEFAULT_HTTP_PORT, 0);
+
+		if (!connection)
+		{
+			log("Failed to open WinHTTP connection");
+			return;
+		}
+
+		request = WinHttpOpenRequest(connection, L"POST", path.c_str(), nullptr, 
+									 WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+
+		if (!request)
+		{
+			log("Failed to open WinHTTP request");
+			return;
+		}
+	}
+
+	Network::~Network()
+	{
+		if (request) WinHttpCloseHandle(request);
+		if (connection) WinHttpCloseHandle(connection);
+		if (session) WinHttpCloseHandle(session);
+	}
+
+	void Network::submitScore(ez2ac::scoredata_t &scoredata)
 	{
 		nlohmann::json msg;
 
