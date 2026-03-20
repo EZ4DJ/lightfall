@@ -9,6 +9,7 @@
 using mem::readInt;
 using mem::readChar;
 using ez2ac::Mode;
+using ez2ac::scoredata;
 
 uintptr_t scoreArrayAddr;
 
@@ -26,7 +27,7 @@ void __stdcall parseScore()
 		return;
 	}
 
-	ez2ac::scoredata_t scoredata = {};
+	memset(&scoredata, 0, sizeof(scoredata));
 
 	scoredata.mode = readInt(ez2ac::modeAddr);
 	scoredata.stage = readInt(ez2ac::stageAddr);

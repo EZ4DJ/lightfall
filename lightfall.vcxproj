@@ -157,6 +157,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ez2ac.cpp" />
     <ClCompile Include="src\context.cpp" />
     <ClCompile Include="src\local_db.cpp" />
     <ClCompile Include="src\memory_utils.cpp" />

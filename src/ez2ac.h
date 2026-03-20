@@ -17,13 +17,12 @@ namespace ez2ac
 	// Each random/mirror option stored in separate addresses, this was a nightmare to find
 	constexpr uintptr_t randomAddrs[] = { 0x1B2E8C0, 0x1B2E8C8, 0x1B2E990, 0x1B2E8D0, 0x1B2E960, 0x1B2E998,
 										  0x1B2EBBC, 0x1B2EF38, 0x1B2E958, 0x1B2E970, 0x1B2E978 };
-	constexpr char* randomOpts[] = { "ON", "S", "PS", "M", "H", "H", "F", "F", "N", "K", "SP" };
-
-	constexpr char* autoOpts[] = { "OFF", "S", "P", "SP" };
-	constexpr char* autoOpts14K[] = { "OFF", "LS", "RS", "S" };
-
-	constexpr char* grades[] = { "F", "D", "C", "B", "A", "A+", "S", "S+", "S++", "S+++", "S++++" };
-	constexpr char* cv2Grades[] = { "F", "F", "D", "C", "B", "A", "A+" };
+	
+	extern const char* randomOpts[];
+	extern const char* autoOpts[];
+	extern const char* autoOpts14K[];
+	extern const char* grades[];
+	extern const char* cv2Grades[];
 
 	// numbered 0-12, can use int conversion to compare to mode number stored in memory
 	// the underscores are a little ugly but enums can't start with a number
@@ -64,4 +63,6 @@ namespace ez2ac
 		char auto_op[4];
 		uint32_t stage;
 	};
+
+	extern scoredata_t scoredata;
 }
