@@ -17,9 +17,10 @@ namespace lightfall
 		components.dwExtraInfoLength = static_cast<DWORD>(-1);
 
 		if (!WinHttpCrackUrl(context.getURL().c_str(), 
-							 static_cast<DWORD>(wcslen(context.getURL().c_str())), 0, &components))
+							 static_cast<DWORD>(wcslen(context.getURL().c_str())),
+							 0, &components))
 		{
-			log("Failed to crack URL");
+			log("Failed to crack URL: error %u", GetLastError());
 			return;
 		}
 
@@ -31,7 +32,7 @@ namespace lightfall
 
 		if (!session)
 		{
-			log("Failed to open WinHTTP session");
+			log("Failed to open WinHTTP session: error %u", GetLastError());
 			return;
 		}
 
@@ -39,7 +40,7 @@ namespace lightfall
 
 		if (!connection)
 		{
-			log("Failed to open WinHTTP connection");
+			log("Failed to open WinHTTP connection: error %u", GetLastError());
 			return;
 		}
 
@@ -48,7 +49,7 @@ namespace lightfall
 
 		if (!request)
 		{
-			log("Failed to open WinHTTP request");
+			log("Failed to open WinHTTP request: error %u", GetLastError());
 			return;
 		}
 	}
