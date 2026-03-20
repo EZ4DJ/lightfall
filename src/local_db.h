@@ -11,6 +11,7 @@ namespace lightfall
 		public:
 			int initDB(std::string &savePath);
 			void writeDB(ez2ac::scoredata_t &scoredata);
+			~LocalDB();
 
 		private:
 			sqlite3* db;

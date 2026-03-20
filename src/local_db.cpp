@@ -117,4 +117,10 @@ namespace lightfall
 			log("Error resetting database insert statement: %s", sqlite3_errmsg(db));
 		}
 	}
+
+	LocalDB::~LocalDB()
+	{
+		sqlite3_finalize(stmt);
+		sqlite3_close(db);
+	}
 }
